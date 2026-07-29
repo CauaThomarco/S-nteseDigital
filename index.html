@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PixelLab — Soluções de Software Sob Medida</title>
+<meta name="description" content="PixelLab desenvolve software sob medida: e-commerce, sistemas de gestão para hotelaria e pousadas, sites institucionais e APIs robustas com Java, Spring Boot e React.">
+<meta name="author" content="Cauã Thomarco">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#05060f">
+
+<!-- Define o tema antes da pintura: segue a preferência do sistema do cliente,
+     ou a escolha manual salva anteriormente. Evita flash de tema errado. -->
+<script>
+(function () {
+  var t;
+  try { t = localStorage.getItem("pixellab-theme"); } catch (e) {}
+  if (t !== "light" && t !== "dark") {
+    t = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  }
+  document.documentElement.setAttribute("data-theme", t);
+})();
+</script>
+<meta name="keywords" content="desenvolvimento de software, e-commerce, sistema hoteleiro, pousadas, Spring Boot, React, Java, PixelLab">
+<link rel="canonical" href="https://pixellab.dev/">
+
+<!-- Open Graph / redes sociais -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="PixelLab">
+<meta property="og:title" content="PixelLab — Soluções de Software Sob Medida">
+<meta property="og:description" content="E-commerce, sistemas para hotelaria, sites institucionais e APIs sob medida. Do planejamento ao deploy.">
+<meta property="og:url" content="https://pixellab.dev/">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b0e1e'/%3E%3Cpath d='M20 46V18h12a9 9 0 0 1 0 18h-4' stroke='%238b5cf6' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='44' cy='42' r='4' fill='%2322d3ee'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "PixelLab",
+  "description": "Desenvolvimento de software sob medida: e-commerce, sistemas para hotelaria e pousadas, sites institucionais e APIs.",
+  "url": "https://pixellab.dev/",
+  "areaServed": "BR",
+  "founder": { "@type": "Person", "name": "Cauã Thomarco" },
+  "knowsAbout": ["Java", "Spring Boot", "React", "PostgreSQL", "MySQL", "E-commerce", "Sistemas de gestão hoteleira"],
+  "email": "cauathomarco@gmail.com",
+  "telephone": "+5531999082523",
+  "sameAs": [
+    "https://www.linkedin.com/in/thomarco",
+    "https://github.com/CauaThomarco"
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#hero">Ir para o conteúdo</a>
+
+<!-- ============ NAV FLUTUANTE ============ -->
+<header class="nav-wrap" id="nav">
+  <nav class="nav glass" aria-label="Navegação principal">
+    <a class="brand" href="#hero" aria-label="PixelLab — início">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="28" height="28">
+          <defs>
+            <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#6366f1"/><stop offset=".5" stop-color="#8b5cf6"/><stop offset="1" stop-color="#22d3ee"/>
+            </linearGradient>
+          </defs>
+          <rect x="2" y="2" width="36" height="36" rx="11" fill="none" stroke="url(#lg)" stroke-width="2.5"/>
+          <path d="M14 29V12h7.5a5.75 5.75 0 0 1 0 11.5H17" fill="none" stroke="url(#lg)" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="27" cy="27" r="2.6" fill="#22d3ee"/>
+        </svg>
+      </span>
+      <span class="brand-text">Pixel<span class="grad-text">Lab</span></span>
+    </a>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#projetos">Projetos</a></li>
+      <li><a href="#servicos">Serviços</a></li>
+      <li><a href="#stack">Stack</a></li>
+      <li><a href="#processo">Processo</a></li>
+      <li><a href="#valores">Valores</a></li>
+      <li><a href="#contato">Contato</a></li>
+      <li class="nav-cta-mobile"><a href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Vi%20o%20site%20da%20PixelLab%20e%20quero%20conversar%20sobre%20um%20projeto." target="_blank" rel="noopener">Vamos Conversar</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+        <svg class="ico-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <svg class="ico-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/></g></svg>
+      </button>
+      <a class="btn btn-primary btn-sm nav-cta" href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Vi%20o%20site%20da%20PixelLab%20e%20quero%20conversar%20sobre%20um%20projeto." target="_blank" rel="noopener">Vamos Conversar</a>
+      <button class="icon-btn burger" id="burger" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main>
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grid-floor"></div>
+    <div class="scanline"></div>
+  </div>
+
+  <div class="container hero-inner">
+    <p class="pill reveal"><span class="dot"></span> Disponível para novos projetos</p>
+
+    <h1 class="hero-title reveal" data-delay="1">
+      Soluções de Software<br><span class="grad-text">Sob Medida</span>
+    </h1>
+
+    <p class="hero-sub reveal" data-delay="2">
+      Desenvolvimento web, e-commerce e sistemas de gestão para hotelaria — construídos com
+      arquitetura sólida, código limpo e foco total no seu negócio.
+    </p>
+
+    <div class="hero-cta reveal" data-delay="3">
+      <a class="btn btn-primary btn-wa" href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Vi%20o%20site%20da%20PixelLab%20e%20quero%20conversar%20sobre%20um%20projeto." target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M20.5 11.7A8.4 8.4 0 0 1 8 19.3L3.5 20.5l1.2-4.4A8.4 8.4 0 1 1 20.5 11.7Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M8.8 8.4c-.5.6-.4 1.7.4 2.9.9 1.3 2 2 2.9 2.4 1 .4 1.7.3 2.2-.2l.6-.7-1.9-1.2-.7.6c-.6-.3-1.3-.9-1.8-1.7l.6-.7L9.8 7.9l-1 .5Z" fill="currentColor"/></svg>
+        Vamos Conversar
+      </a>
+      <a class="btn btn-ghost" href="#projetos">Ver projetos</a>
+    </div>
+
+    <p class="hero-micro reveal" data-delay="3">
+      Resposta em até 24h &middot; orçamento sem compromisso &middot; (31) 99908-2523
+    </p>
+
+    <dl class="hero-stats reveal" data-delay="4">
+      <div><dt>Projetos entregues</dt><dd class="counter" data-to="6">0</dd></div>
+      <div><dt>Stack principal</dt><dd>Java + React</dd></div>
+      <div><dt>Foco</dt><dd>E-commerce &amp; Hotelaria</dd></div>
+    </dl>
+  </div>
+
+  <a class="scroll-hint" href="#sobre" aria-hidden="true"><span></span></a>
+</section>
+
+<!-- ============ FAIXA DE CONFIANÇA ============ -->
+<section class="trust-strip" aria-label="Compromissos com o cliente">
+  <div class="container trust-grid">
+    <div class="trust reveal">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.2-2.9 7.9-7 9.5-4.1-1.6-7-5.3-7-9.5V6l7-3Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m8.8 12.2 2.2 2.2 4.2-4.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <p><strong>Escopo e prazo definidos</strong> antes de começar</p>
+    </div>
+    <div class="trust reveal" data-delay="1">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 18c-3 0-5.5-2.4-5.5-5.4 0-2.6 1.8-4.8 4.3-5.3A5.6 5.6 0 0 1 13.2 4a5.5 5.5 0 0 1 5.4 4.4c1.7.6 2.9 2.2 2.9 4.1 0 2.5-2 4.5-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 21v-8m0 0-2.4 2.4M12 13l2.4 2.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <p><strong>O código é seu</strong> — repositório entregue no fim</p>
+    </div>
+    <div class="trust reveal" data-delay="2">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.5V12l3.2 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <p><strong>Suporte pós-entrega</strong> e correções incluídas</p>
+    </div>
+    <div class="trust reveal" data-delay="3">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="8.2" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4.8 20c.6-3.6 3.6-5.6 7.2-5.6s6.6 2 7.2 5.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      <p><strong>Atendimento direto</strong> com quem desenvolve</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SOBRE ============ -->
+<section class="section" id="sobre">
+  <div class="container about-grid">
+    <div class="reveal">
+      <p class="eyebrow">Sobre</p>
+      <h2 class="section-title">Software feito para o seu contexto, não para o genérico.</h2>
+      <p class="lead">
+        A PixelLab desenvolve <strong>aplicações web, e-commerce e sistemas para hotelaria e pousadas</strong>,
+        do banco de dados ao deploy. Cada projeto é desenhado sob medida — sem template forçado, sem
+        funcionalidade inútil. Qualidade, customização e código que continua fácil de evoluir.
+      </p>
+      <ul class="check-list">
+        <li>Arquitetura pensada para crescer junto com o negócio</li>
+        <li>Comunicação direta com quem escreve o código</li>
+        <li>Entrega iterativa: você acompanha cada etapa</li>
+      </ul>
+    </div>
+
+    <div class="about-card glass reveal" data-delay="2">
+      <pre class="code-block"><code><span class="c-key">@Service</span>
+<span class="c-key">public class</span> <span class="c-cls">PixelLab</span> {
+
+  <span class="c-key">private final</span> <span class="c-cls">Foco</span> foco = <span class="c-cls">Foco</span>.<span class="c-fn">NO_SEU_NEGOCIO</span>;
+
+  <span class="c-key">public</span> <span class="c-cls">Solucao</span> <span class="c-fn">construir</span>(<span class="c-cls">Ideia</span> ideia) {
+    <span class="c-key">return</span> <span class="c-cls">Solucao</span>.<span class="c-fn">builder</span>()
+        .<span class="c-fn">arquitetura</span>(<span class="c-str">"escalável"</span>)
+        .<span class="c-fn">codigo</span>(<span class="c-str">"limpo e testado"</span>)
+        .<span class="c-fn">prazo</span>(<span class="c-str">"combinado e cumprido"</span>)
+        .<span class="c-fn">build</span>();
+  }
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROJETOS ============ -->
+<section class="section" id="projetos">
+  <div class="container">
+    <header class="section-head reveal">
+      <p class="eyebrow">Portfólio</p>
+      <h2 class="section-title">Projetos entregues</h2>
+      <p class="section-desc">Sites no ar e sistemas construídos do zero — e-commerce, gestão hoteleira, logística e presença digital.</p>
+    </header>
+
+    <div class="projects">
+
+      <!-- Chalés Ponta da Represa — site publicado -->
+      <article class="project glass reveal" style="--accent:#34d399; --accent-2:#22d3ee">
+        <div class="project-visual">
+          <svg viewBox="0 0 400 240" role="img" aria-label="Mockup do site dos Chalés Ponta da Represa" preserveAspectRatio="xMidYMid slice">
+            <defs><linearGradient id="p5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399" stop-opacity=".3"/><stop offset="1" stop-color="#22d3ee" stop-opacity=".28"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#p5)"/>
+            <rect x="28" y="26" width="344" height="188" rx="10" fill="#0b0e1e" fill-opacity=".55" stroke="#fff" stroke-opacity=".18"/>
+            <path d="M28 168h344v46a10 10 0 0 1-10 10H38a10 10 0 0 1-10-10Z" fill="#22d3ee" fill-opacity=".16"/>
+            <g stroke="#34d399" stroke-opacity=".55" fill="none" stroke-width="2.5" stroke-linejoin="round">
+              <path d="M96 150 128 118l32 32"/><path d="M108 150v-22h40v22"/>
+              <path d="M212 150 244 118l32 32"/><path d="M224 150v-22h40v22"/>
+            </g>
+            <g fill="#34d399" fill-opacity=".7"><rect x="120" y="134" width="14" height="16" rx="2"/><rect x="236" y="134" width="14" height="16" rx="2"/></g>
+            <g stroke="#22d3ee" stroke-opacity=".45" fill="none" stroke-width="2" stroke-linecap="round"><path d="M40 182c14-8 28 8 42 0s28 8 42 0 28 8 42 0 28 8 42 0 28 8 42 0 28 8 42 0"/></g>
+            <rect x="48" y="48" width="110" height="10" rx="5" fill="#fff" fill-opacity=".55"/>
+            <rect x="48" y="68" width="150" height="7" rx="3.5" fill="#fff" fill-opacity=".28"/>
+            <rect x="48" y="88" width="86" height="20" rx="10" fill="#22d3ee" fill-opacity=".75"/>
+            <g fill="#fff" fill-opacity=".22"><rect x="252" y="46" width="100" height="14" rx="7"/><rect x="252" y="66" width="100" height="14" rx="7"/><rect x="252" y="86" width="100" height="14" rx="7"/></g>
+            <g fill="#fff" fill-opacity=".35"><rect x="48" y="196" width="60" height="8" rx="4"/><rect x="120" y="196" width="60" height="8" rx="4"/><rect x="192" y="196" width="60" height="8" rx="4"/></g>
+          </svg>
+          <span class="badge badge-live"><span class="live-dot" aria-hidden="true"></span> No ar</span>
+          <span class="badge">Hospedagem</span>
+        </div>
+        <div class="project-body">
+          <h3>Chalés Ponta da Represa</h3>
+          <p>Site de hospedagem para os chalés em Guapé (MG), na beira do Lago de Furnas:
+            vitrine das acomodações, galeria de fotos e contato direto para reserva.</p>
+          <ul class="tags">
+            <li>HTML5 / CSS3</li><li>JavaScript</li><li>Responsivo</li><li>SEO local</li>
+          </ul>
+          <a class="project-link" href="https://pontadarepresa.com.br/" target="_blank" rel="noopener">
+            Ver site no ar
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M8 16 16 8m0 0H9m7 0v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- Jardim Magnólia -->
+      <article class="project glass reveal" style="--accent:#f472b6; --accent-2:#8b5cf6">
+        <div class="project-visual">
+          <svg viewBox="0 0 400 240" role="img" aria-label="Mockup do e-commerce Jardim Magnólia" preserveAspectRatio="xMidYMid slice">
+            <defs><linearGradient id="p1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f472b6" stop-opacity=".35"/><stop offset="1" stop-color="#8b5cf6" stop-opacity=".25"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#p1)"/>
+            <g opacity=".9"><rect x="28" y="26" width="344" height="188" rx="10" fill="#0b0e1e" fill-opacity=".55" stroke="#ffffff" stroke-opacity=".18"/>
+            <circle cx="44" cy="42" r="3.4" fill="#f472b6"/><circle cx="56" cy="42" r="3.4" fill="#fbbf24"/><circle cx="68" cy="42" r="3.4" fill="#34d399"/>
+            <rect x="44" y="62" width="120" height="10" rx="5" fill="#fff" fill-opacity=".55"/>
+            <rect x="44" y="82" width="72" height="7" rx="3.5" fill="#fff" fill-opacity=".3"/>
+            <g fill="#fff" fill-opacity=".12" stroke="#f472b6" stroke-opacity=".5">
+              <rect x="44" y="106" width="94" height="86" rx="8"/><rect x="152" y="106" width="94" height="86" rx="8"/><rect x="260" y="106" width="94" height="86" rx="8"/>
+            </g>
+            <g fill="#f9a8d4" fill-opacity=".85"><circle cx="91" cy="138" r="11"/><circle cx="199" cy="138" r="11"/><circle cx="307" cy="138" r="11"/></g>
+            <g fill="#fff" fill-opacity=".4"><rect x="60" y="162" width="62" height="6" rx="3"/><rect x="168" y="162" width="62" height="6" rx="3"/><rect x="276" y="162" width="62" height="6" rx="3"/></g>
+            <g fill="#22d3ee" fill-opacity=".7"><rect x="60" y="176" width="34" height="6" rx="3"/><rect x="168" y="176" width="34" height="6" rx="3"/><rect x="276" y="176" width="34" height="6" rx="3"/></g></g>
+          </svg>
+          <span class="badge">E-commerce</span>
+        </div>
+        <div class="project-body">
+          <h3>Jardim Magnólia</h3>
+          <p>Plataforma completa de venda de flores com gerenciamento de estoque, catálogo dinâmico e checkout.</p>
+          <ul class="tags">
+            <li>Spring Boot 3</li><li>React + Vite</li><li>PostgreSQL</li><li>JPA/Hibernate</li>
+          </ul>
+          <!-- TODO: se a loja estiver no ar, trocar por URL do site publicado -->
+          <a class="project-link" href="https://github.com/CauaThomarco/jardim-magnolia" target="_blank" rel="noopener">
+            Ver projeto
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M8 16 16 8m0 0H9m7 0v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- StayHub -->
+      <article class="project glass reveal" data-delay="1" style="--accent:#22d3ee; --accent-2:#3b82f6">
+        <div class="project-visual">
+          <svg viewBox="0 0 400 240" role="img" aria-label="Mockup do sistema hoteleiro StayHub" preserveAspectRatio="xMidYMid slice">
+            <defs><linearGradient id="p2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee" stop-opacity=".32"/><stop offset="1" stop-color="#3b82f6" stop-opacity=".28"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#p2)"/>
+            <g><rect x="28" y="26" width="344" height="188" rx="10" fill="#0b0e1e" fill-opacity=".55" stroke="#fff" stroke-opacity=".18"/>
+            <rect x="28" y="26" width="86" height="188" rx="10" fill="#fff" fill-opacity=".07"/>
+            <g fill="#22d3ee" fill-opacity=".7"><rect x="44" y="52" width="54" height="7" rx="3.5"/></g>
+            <g fill="#fff" fill-opacity=".28"><rect x="44" y="74" width="44" height="6" rx="3"/><rect x="44" y="90" width="50" height="6" rx="3"/><rect x="44" y="106" width="38" height="6" rx="3"/><rect x="44" y="122" width="46" height="6" rx="3"/></g>
+            <g><rect x="130" y="52" width="70" height="44" rx="8" fill="#fff" fill-opacity=".1" stroke="#22d3ee" stroke-opacity=".45"/><rect x="212" y="52" width="70" height="44" rx="8" fill="#fff" fill-opacity=".1" stroke="#22d3ee" stroke-opacity=".45"/><rect x="294" y="52" width="62" height="44" rx="8" fill="#fff" fill-opacity=".1" stroke="#22d3ee" stroke-opacity=".45"/></g>
+            <g fill="#fff" fill-opacity=".55"><rect x="142" y="66" width="30" height="9" rx="4"/><rect x="224" y="66" width="24" height="9" rx="4"/><rect x="306" y="66" width="28" height="9" rx="4"/></g>
+            <g stroke="#fff" stroke-opacity=".12"><path d="M130 116h226M130 138h226M130 160h226M130 182h226"/></g>
+            <g><rect x="130" y="122" width="96" height="10" rx="5" fill="#34d399" fill-opacity=".75"/><rect x="234" y="144" width="122" height="10" rx="5" fill="#22d3ee" fill-opacity=".7"/><rect x="150" y="166" width="70" height="10" rx="5" fill="#8b5cf6" fill-opacity=".75"/><rect x="130" y="188" width="150" height="10" rx="5" fill="#fbbf24" fill-opacity=".6"/></g></g>
+          </svg>
+          <span class="badge">Hotelaria</span>
+        </div>
+        <div class="project-body">
+          <h3>StayHub</h3>
+          <p>Sistema completo para gestão de reservas, check-in/check-out e cadastro de hóspedes, com controle de quartos e relatórios.</p>
+          <ul class="tags">
+            <li>Spring Boot 3.3</li><li>Java 17</li><li>MySQL</li><li>Spring Security</li>
+          </ul>
+          <a class="project-link" href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Vi%20o%20StayHub%20no%20site%20da%20PixelLab%20e%20quero%20um%20sistema%20de%20gest%C3%A3o%20parecido." target="_blank" rel="noopener">
+            Quero algo assim
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- Hotel Descanso Garantido -->
+      <article class="project glass reveal" data-delay="2" style="--accent:#38bdf8; --accent-2:#6366f1">
+        <div class="project-visual">
+          <svg viewBox="0 0 400 240" role="img" aria-label="Mockup do sistema Hotel Descanso Garantido" preserveAspectRatio="xMidYMid slice">
+            <defs><linearGradient id="p6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#38bdf8" stop-opacity=".3"/><stop offset="1" stop-color="#6366f1" stop-opacity=".28"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#p6)"/>
+            <rect x="28" y="26" width="344" height="188" rx="10" fill="#0b0e1e" fill-opacity=".6" stroke="#fff" stroke-opacity=".18"/>
+            <rect x="48" y="46" width="120" height="9" rx="4.5" fill="#38bdf8" fill-opacity=".8"/>
+            <rect x="48" y="64" width="180" height="6" rx="3" fill="#fff" fill-opacity=".22"/>
+            <g>
+              <rect x="48" y="88" width="72" height="52" rx="8" fill="#34d399" fill-opacity=".22" stroke="#34d399" stroke-opacity=".6"/>
+              <rect x="132" y="88" width="72" height="52" rx="8" fill="#f87171" fill-opacity=".2" stroke="#f87171" stroke-opacity=".55"/>
+              <rect x="216" y="88" width="72" height="52" rx="8" fill="#34d399" fill-opacity=".22" stroke="#34d399" stroke-opacity=".6"/>
+              <rect x="300" y="88" width="52" height="52" rx="8" fill="#fbbf24" fill-opacity=".2" stroke="#fbbf24" stroke-opacity=".55"/>
+            </g>
+            <g fill="#fff" fill-opacity=".5">
+              <rect x="60" y="100" width="26" height="7" rx="3.5"/><rect x="144" y="100" width="26" height="7" rx="3.5"/>
+              <rect x="228" y="100" width="26" height="7" rx="3.5"/><rect x="312" y="100" width="26" height="7" rx="3.5"/>
+            </g>
+            <g stroke="#fff" stroke-opacity=".35" fill="none" stroke-width="1.8">
+              <path d="M62 122h14M146 122h14M230 122h14M314 122h14"/>
+            </g>
+            <g fill="#fff" fill-opacity=".1" stroke="#38bdf8" stroke-opacity=".35">
+              <rect x="48" y="156" width="304" height="18" rx="6"/><rect x="48" y="180" width="304" height="18" rx="6"/>
+            </g>
+            <g fill="#38bdf8" fill-opacity=".7"><rect x="58" y="163" width="74" height="5" rx="2.5"/><rect x="58" y="187" width="112" height="5" rx="2.5"/></g>
+            <g fill="#fff" fill-opacity=".28"><rect x="200" y="163" width="52" height="5" rx="2.5"/><rect x="240" y="187" width="52" height="5" rx="2.5"/></g>
+          </svg>
+          <span class="badge">Hotelaria</span>
+        </div>
+        <div class="project-body">
+          <h3>Hotel Descanso Garantido</h3>
+          <p>Sistema de gerenciamento de hotel: cadastro de hóspedes, controle de quartos
+            ocupados e livres, e registro de reservas.</p>
+          <ul class="tags">
+            <li>C++</li><li>POO</li><li>Estruturas de dados</li><li>Console</li>
+          </ul>
+          <a class="project-link" href="https://github.com/CauaThomarco/Hotel-Descanso-Garantido" target="_blank" rel="noopener">
+            Ver repositório
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M8 16 16 8m0 0H9m7 0v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- SLEM -->
+      <article class="project glass reveal" style="--accent:#fbbf24; --accent-2:#f97316">
+        <div class="project-visual">
+          <svg viewBox="0 0 400 240" role="img" aria-label="Mockup do sistema de logística SLEM" preserveAspectRatio="xMidYMid slice">
+            <defs><linearGradient id="p7" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbbf24" stop-opacity=".28"/><stop offset="1" stop-color="#f97316" stop-opacity=".26"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#p7)"/>
+            <rect x="28" y="26" width="344" height="188" rx="10" fill="#0b0e1e" fill-opacity=".6" stroke="#fff" stroke-opacity=".18"/>
+            <path d="M52 176c34-6 40-58 76-62s52 44 88 38 44-46 84-44" fill="none" stroke="#fbbf24" stroke-opacity=".55" stroke-width="2.4" stroke-dasharray="7 6" stroke-linecap="round"/>
+            <g fill="#f97316" fill-opacity=".85"><circle cx="52" cy="176" r="5.5"/><circle cx="128" cy="114" r="5.5"/><circle cx="216" cy="152" r="5.5"/><circle cx="300" cy="108" r="5.5"/></g>
+            <g fill="#fff" fill-opacity=".28"><rect x="44" y="46" width="96" height="9" rx="4.5"/><rect x="44" y="64" width="60" height="6" rx="3"/></g>
+            <g transform="translate(288 150)">
+              <rect x="0" y="0" width="42" height="26" rx="4" fill="#fbbf24" fill-opacity=".8"/>
+              <path d="M42 8h16l10 10v8H42Z" fill="#f97316" fill-opacity=".8"/>
+              <circle cx="14" cy="30" r="5" fill="#0b0e1e" stroke="#fff" stroke-opacity=".5" stroke-width="1.6"/>
+              <circle cx="54" cy="30" r="5" fill="#0b0e1e" stroke="#fff" stroke-opacity=".5" stroke-width="1.6"/>
+            </g>
+            <g fill="#fff" fill-opacity=".12" stroke="#fbbf24" stroke-opacity=".4">
+              <rect x="44" y="192" width="60" height="14" rx="4"/><rect x="112" y="192" width="60" height="14" rx="4"/><rect x="180" y="192" width="60" height="14" rx="4"/>
+            </g>
+          </svg>
+          <span class="badge">Logística</span>
+        </div>
+        <div class="project-body">
+          <h3>SLEM</h3>
+          <p>Sistema de Logística de Entrega de Mercadorias: cadastro de entregas, controle
+            de rotas e acompanhamento do status de cada mercadoria.</p>
+          <ul class="tags">
+            <li>C++</li><li>POO</li><li>Estruturas de dados</li><li>Console</li>
+          </ul>
+          <!-- TODO: se houver repositório público do SLEM, trocar por ele -->
+          <a class="project-link" href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Vi%20o%20SLEM%20no%20portf%C3%B3lio%20da%20PixelLab%20e%20quero%20um%20sistema%20de%20log%C3%ADstica%20parecido." target="_blank" rel="noopener">
+            Quero algo assim
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- FireShield -->
+      <article class="project glass reveal" data-delay="1" style="--accent:#f87171; --accent-2:#f97316">
+        <div class="project-visual">
+          <svg viewBox="0 0 400 240" role="img" aria-label="Mockup do FireShield, site de denúncia de queimadas" preserveAspectRatio="xMidYMid slice">
+            <defs><linearGradient id="p8" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f87171" stop-opacity=".28"/><stop offset="1" stop-color="#f97316" stop-opacity=".3"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#p8)"/>
+            <rect x="28" y="26" width="344" height="188" rx="10" fill="#0b0e1e" fill-opacity=".6" stroke="#fff" stroke-opacity=".18"/>
+            <rect x="196" y="44" width="156" height="152" rx="8" fill="#fff" fill-opacity=".07" stroke="#f87171" stroke-opacity=".35"/>
+            <g stroke="#fff" stroke-opacity=".14" fill="none" stroke-width="1.4">
+              <path d="M196 84h156M196 122h156M196 160h156M248 44v152M300 44v152"/>
+            </g>
+            <g>
+              <circle cx="232" cy="102" r="13" fill="#f87171" fill-opacity=".22"/>
+              <path d="M232 95c3 3 4.5 5.5 4.5 8a4.5 4.5 0 1 1-9 0c0-2.5 1.5-5 4.5-8Z" fill="#f87171"/>
+              <circle cx="314" cy="150" r="11" fill="#fbbf24" fill-opacity=".2"/>
+              <path d="M314 144c2.6 2.6 4 4.8 4 7a4 4 0 1 1-8 0c0-2.2 1.4-4.4 4-7Z" fill="#fbbf24"/>
+              <circle cx="272" cy="70" r="9" fill="#f97316" fill-opacity=".2"/>
+              <path d="M272 65c2.2 2.2 3.4 4 3.4 5.9a3.4 3.4 0 1 1-6.8 0c0-1.9 1.2-3.7 3.4-5.9Z" fill="#f97316"/>
+            </g>
+            <rect x="48" y="44" width="120" height="10" rx="5" fill="#fff" fill-opacity=".5"/>
+            <rect x="48" y="64" width="86" height="6" rx="3" fill="#fff" fill-opacity=".26"/>
+            <g fill="#fff" fill-opacity=".1" stroke="#f87171" stroke-opacity=".35">
+              <rect x="48" y="86" width="120" height="20" rx="6"/><rect x="48" y="112" width="120" height="20" rx="6"/><rect x="48" y="138" width="120" height="34" rx="6"/>
+            </g>
+            <g fill="#fff" fill-opacity=".3"><rect x="56" y="93" width="60" height="6" rx="3"/><rect x="56" y="119" width="76" height="6" rx="3"/><rect x="56" y="146" width="90" height="6" rx="3"/></g>
+            <rect x="48" y="180" width="86" height="18" rx="9" fill="#f87171" fill-opacity=".8"/>
+          </svg>
+          <span class="badge">Impacto social</span>
+        </div>
+        <div class="project-body">
+          <h3>FireShield</h3>
+          <p>Site de denúncia de queimadas: registro de ocorrências pelo cidadão,
+            listagem e visualização dos focos relatados.</p>
+          <ul class="tags">
+            <li>HTML5</li><li>CSS3</li><li>JavaScript</li><li>JSON Server</li>
+          </ul>
+          <a class="project-link" href="https://github.com/CauaThomarco/FireShield" target="_blank" rel="noopener">
+            Ver repositório
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M8 16 16 8m0 0H9m7 0v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVIÇOS ============ -->
+<section class="section alt" id="servicos">
+  <div class="container">
+    <header class="section-head reveal">
+      <p class="eyebrow">Serviços</p>
+      <h2 class="section-title">Especialidades</h2>
+      <p class="section-desc">Quatro frentes de atuação — combináveis conforme a necessidade do projeto.</p>
+    </header>
+
+    <div class="cards">
+      <article class="card glass reveal">
+        <div class="card-ico" style="--accent:#f472b6" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 7h16l-1.4 11.2A2 2 0 0 1 16.6 20H7.4a2 2 0 0 1-2-1.8L4 7Zm4 0V5.6A4 4 0 0 1 12 2a4 4 0 0 1 4 3.6V7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>E-commerce</h3>
+        <p>Lojas online completas: catálogo, carrinho, checkout seguro, controle de estoque e painel administrativo.</p>
+        <ul class="mini-list"><li>Gateway de pagamento</li><li>Gestão de pedidos</li><li>Painel de estoque</li></ul>
+      </article>
+
+      <article class="card glass reveal" data-delay="1">
+        <div class="card-ico" style="--accent:#22d3ee" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 21V6.5L12 3l9 3.5V21M3 21h18M9 21v-5h6v5M8 10h.01M12 10h.01M16 10h.01M8 13.5h.01M12 13.5h.01M16 13.5h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Hotelaria &amp; Pousadas</h3>
+        <p>Gestão de reservas, check-in digital, controle de quartos, tarifas por período e relatórios de ocupação.</p>
+        <ul class="mini-list"><li>Calendário de disponibilidade</li><li>Check-in / check-out</li><li>Relatórios gerenciais</li></ul>
+      </article>
+
+      <article class="card glass reveal" data-delay="2">
+        <div class="card-ico" style="--accent:#8b5cf6" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Websites Institucionais</h3>
+        <p>Landing pages e sites corporativos rápidos, responsivos e otimizados para conversão e busca orgânica.</p>
+        <ul class="mini-list"><li>Design sob medida</li><li>SEO técnico</li><li>Performance</li></ul>
+      </article>
+
+      <article class="card glass reveal" data-delay="3">
+        <div class="card-ico" style="--accent:#34d399" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24"><path d="M10.3 3h3.4l.5 2.6 2.3 1.3 2.4-1 1.7 2.9-1.9 1.8V13l1.9 1.8-1.7 2.9-2.4-1-2.3 1.3-.5 2.6h-3.4l-.5-2.6L7.5 16l-2.4 1-1.7-2.9L5.3 13v-2.4L3.4 8.8l1.7-2.9 2.4 1 2.3-1.3.5-2.6Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="11.9" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </div>
+        <h3>Sistemas Customizados</h3>
+        <p>Backend robusto, APIs REST bem documentadas, autenticação e integrações — de gestão interna a controle de logística e entregas.</p>
+        <ul class="mini-list"><li>Spring Security / JWT</li><li>Logística e entregas</li><li>Integrações e webhooks</li><li>Modelagem de dados</li></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STACK ============ -->
+<section class="section" id="stack">
+  <div class="container">
+    <header class="section-head reveal">
+      <p class="eyebrow">Tecnologia</p>
+      <h2 class="section-title">Stack tecnológico</h2>
+      <p class="section-desc">Ferramentas maduras, escolhidas por confiabilidade e manutenção a longo prazo.</p>
+    </header>
+
+    <div class="stack-grid">
+      <div class="stack-col glass reveal">
+        <h3><span class="sq" style="--accent:#f97316"></span> Backend</h3>
+        <ul class="chips">
+          <li>Java 17+</li><li>Spring Boot</li><li>Spring Security</li><li>JPA / Hibernate</li><li>REST API</li><li>Maven</li><li>C++</li>
+        </ul>
+      </div>
+      <div class="stack-col glass reveal" data-delay="1">
+        <h3><span class="sq" style="--accent:#22d3ee"></span> Frontend</h3>
+        <ul class="chips">
+          <li>React</li><li>TypeScript</li><li>JavaScript</li><li>Vite</li><li>HTML5</li><li>CSS3</li>
+        </ul>
+      </div>
+      <div class="stack-col glass reveal" data-delay="2">
+        <h3><span class="sq" style="--accent:#8b5cf6"></span> Banco de dados</h3>
+        <ul class="chips">
+          <li>PostgreSQL</li><li>MySQL</li><li>Flyway</li><li>Modelagem relacional</li>
+        </ul>
+      </div>
+      <div class="stack-col glass reveal" data-delay="3">
+        <h3><span class="sq" style="--accent:#34d399"></span> Deploy &amp; Infra</h3>
+        <ul class="chips">
+          <li>Vercel</li><li>AWS</li><li>Docker</li><li>Git / GitHub</li><li>CI básico</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROCESSO ============ -->
+<section class="section alt" id="processo">
+  <div class="container">
+    <header class="section-head reveal">
+      <p class="eyebrow">Processo</p>
+      <h2 class="section-title">Como funciona</h2>
+      <p class="section-desc">Cinco etapas claras, com você acompanhando do início ao ar.</p>
+    </header>
+
+    <ol class="steps">
+      <li class="step reveal">
+        <span class="step-num">01</span>
+        <h3>Conversa Inicial</h3>
+        <p>Entender o negócio, as dores e o que realmente precisa existir na primeira versão.</p>
+      </li>
+      <li class="step reveal" data-delay="1">
+        <span class="step-num">02</span>
+        <h3>Planejamento</h3>
+        <p>Arquitetura da solução, escopo, modelagem de dados e cronograma acordado.</p>
+      </li>
+      <li class="step reveal" data-delay="2">
+        <span class="step-num">03</span>
+        <h3>Desenvolvimento</h3>
+        <p>Entrega iterativa, em ciclos curtos, com versões navegáveis para validação.</p>
+      </li>
+      <li class="step reveal" data-delay="3">
+        <span class="step-num">04</span>
+        <h3>Testes</h3>
+        <p>QA funcional, testes automatizados nos pontos críticos e refinamento de detalhes.</p>
+      </li>
+      <li class="step reveal" data-delay="4">
+        <span class="step-num">05</span>
+        <h3>Deploy</h3>
+        <p>Publicação em produção, domínio, monitoramento e suporte pós-entrega.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ VALORES ============ -->
+<section class="section" id="valores">
+  <div class="container">
+    <header class="section-head reveal">
+      <p class="eyebrow">Investimento</p>
+      <h2 class="section-title">Preços combinados conforme o projeto</h2>
+      <p class="section-desc">
+        Sem pacote fechado: o valor sai do escopo real, do prazo e da complexidade.
+        Abaixo, as faixas típicas de projeto para você se localizar.
+      </p>
+    </header>
+
+    <div class="price-grid">
+      <article class="price glass reveal">
+        <p class="price-tier">Pequeno porte</p>
+        <h3>Websites &amp; Landing Pages</h3>
+        <p class="price-value">Sob consulta</p>
+        <ul class="check-list sm">
+          <li>Site institucional ou landing page</li>
+          <li>Design responsivo sob medida</li>
+          <li>SEO básico e formulário de contato</li>
+          <li>Publicação e domínio</li>
+        </ul>
+        <a class="btn btn-ghost btn-block" href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Quero%20um%20or%C3%A7amento%20para%20um%20site%20institucional%2Flanding%20page." target="_blank" rel="noopener">Solicitar orçamento</a>
+      </article>
+
+      <article class="price glass featured reveal" data-delay="1">
+        <span class="price-flag">Mais procurado</span>
+        <p class="price-tier">Médio porte</p>
+        <h3>E-commerce &amp; Sistemas</h3>
+        <p class="price-value">Sob consulta</p>
+        <ul class="check-list sm">
+          <li>Loja virtual ou sistema de gestão</li>
+          <li>Painel administrativo completo</li>
+          <li>Backend + banco de dados</li>
+          <li>Integrações (pagamento, e-mail, APIs)</li>
+        </ul>
+        <a class="btn btn-primary btn-block" href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Quero%20um%20or%C3%A7amento%20para%20um%20e-commerce%20ou%20sistema%20de%20gest%C3%A3o." target="_blank" rel="noopener">Solicitar orçamento</a>
+      </article>
+
+      <article class="price glass reveal" data-delay="2">
+        <p class="price-tier">Grande porte</p>
+        <h3>Plataformas Customizadas</h3>
+        <p class="price-value">Sob consulta</p>
+        <ul class="check-list sm">
+          <li>Arquitetura sob medida e multiusuário</li>
+          <li>Regras de negócio complexas</li>
+          <li>APIs, relatórios e automações</li>
+          <li>Evolução contínua e suporte</li>
+        </ul>
+        <a class="btn btn-ghost btn-block" href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Quero%20um%20or%C3%A7amento%20para%20uma%20plataforma%20customizada." target="_blank" rel="noopener">Solicitar orçamento</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section" id="faq">
+  <div class="container faq-wrap">
+    <header class="section-head reveal">
+      <p class="eyebrow">Dúvidas</p>
+      <h2 class="section-title">Perguntas frequentes</h2>
+      <p class="section-desc">O que os clientes costumam perguntar antes de começar.</p>
+    </header>
+
+    <div class="faq reveal" data-delay="1">
+      <details>
+        <summary>Quanto custa um projeto?</summary>
+        <p>Depende do escopo. Depois da conversa inicial você recebe um orçamento fechado,
+          com o que está incluído e o que não está — nada de valor surpresa no meio do caminho.</p>
+      </details>
+      <details>
+        <summary>Qual é o prazo de entrega?</summary>
+        <p>O prazo sai do escopo e é definido junto com você antes de qualquer linha de código.
+          Durante o desenvolvimento você recebe versões navegáveis para acompanhar o progresso.</p>
+      </details>
+      <details>
+        <summary>Como funciona o pagamento?</summary>
+        <p>Dividido por etapas, acompanhando o cronograma acordado. Cada etapa tem uma entrega
+          concreta ligada a ela.</p>
+      </details>
+      <details>
+        <summary>E depois que o site ou sistema está no ar?</summary>
+        <p>O código-fonte fica com você, no seu repositório. Correções do que foi entregue estão
+          incluídas, e novas funcionalidades podem ser contratadas depois.</p>
+      </details>
+      <details>
+        <summary>Você atende fora de Belo Horizonte?</summary>
+        <p>Sim. O trabalho é 100% remoto, com atendimento por WhatsApp, e-mail ou chamada de vídeo
+          para qualquer cidade do Brasil.</p>
+      </details>
+      <details>
+        <summary>Trabalho com quem, exatamente?</summary>
+        <p>Direto comigo, Cauã Thomarco, que desenvolvo os projetos. Sem intermediário e sem
+          repasse do seu projeto para terceiros.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTATO ============ -->
+<section class="section alt" id="contato">
+  <div class="container contact-grid">
+    <div class="reveal">
+      <p class="eyebrow">Contato</p>
+      <h2 class="section-title">Vamos conversar sobre o seu projeto</h2>
+      <p class="lead">
+        Conte a ideia em poucas linhas — respondo com uma proposta de escopo, prazo e valor.
+        O caminho mais rápido é o WhatsApp.
+      </p>
+
+      <a class="wa-card reveal" data-delay="1" href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Vi%20o%20site%20da%20PixelLab%20e%20quero%20conversar%20sobre%20um%20projeto." target="_blank" rel="noopener">
+        <span class="wa-card-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26"><path d="M20.5 11.7A8.4 8.4 0 0 1 8 19.3L3.5 20.5l1.2-4.4A8.4 8.4 0 1 1 20.5 11.7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 8.4c-.5.6-.4 1.7.4 2.9.9 1.3 2 2 2.9 2.4 1 .4 1.7.3 2.2-.2l.6-.7-1.9-1.2-.7.6c-.6-.3-1.3-.9-1.8-1.7l.6-.7L9.8 7.9l-1 .5Z" fill="currentColor"/></svg>
+        </span>
+        <span class="wa-card-txt">
+          <strong>Falar no WhatsApp</strong>
+          <small>(31) 99908-2523 &middot; resposta em até 24h</small>
+        </span>
+        <svg class="wa-card-arrow" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <p class="channels-label reveal" data-delay="1">Ou, se preferir outro canal:</p>
+
+      <ul class="channels">
+        <li>
+          <a href="mailto:cauathomarco@gmail.com">
+            <span class="ch-ico" style="--accent:#8b5cf6" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m3.5 7 8.5 6 8.5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span class="ch-txt"><strong>E-mail</strong><small>cauathomarco@gmail.com</small></span>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/thomarco" target="_blank" rel="noopener">
+            <span class="ch-ico" style="--accent:#3b82f6" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7.5 10.5V17M7.5 7.6v.1M11.5 17v-3.6a2.2 2.2 0 0 1 4.4 0V17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span class="ch-txt"><strong>LinkedIn</strong><small>linkedin.com/in/thomarco</small></span>
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/CauaThomarco" target="_blank" rel="noopener">
+            <span class="ch-ico" style="--accent:#a78bfa" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path d="M9.3 20.5v-2.6c-2.6.5-3.3-1.1-3.6-1.9-.2-.5-.9-1.5-1.5-1.8-.5-.3.3-.3.4-.3.8.1 1.4.7 1.8 1.3.8 1.3 2 1 2.9.7.2-.7.6-1.3 1-1.6-2.9-.4-4.2-1.9-4.2-4.1 0-1 .3-1.9 1-2.6-.3-.8-.1-1.9.1-2.4 0 0 .9.1 2.2 1.1a8.6 8.6 0 0 1 4.6 0c1.3-1 2.2-1.1 2.2-1.1.2.5.4 1.6.1 2.4.7.7 1 1.6 1 2.6 0 2.2-1.3 3.7-4.2 4.1.6.5 1 1.4 1 2.2v3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="ch-txt"><strong>GitHub</strong><small>@CauaThomarco</small></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <form class="contact-form glass reveal" data-delay="2" id="contact-form" novalidate>
+      <h3>Solicite um orçamento</h3>
+      <div class="field">
+        <label for="nome">Nome</label>
+        <input id="nome" name="nome" type="text" autocomplete="name" placeholder="Seu nome" required>
+      </div>
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" autocomplete="email" placeholder="voce@empresa.com" required>
+      </div>
+      <div class="field">
+        <label for="tipo">Tipo de projeto</label>
+        <select id="tipo" name="tipo">
+          <option>E-commerce</option>
+          <option>Sistema para hotelaria / pousada</option>
+          <option>Website institucional</option>
+          <option>Sistema customizado / API</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="msg">Sobre o projeto</label>
+        <textarea id="msg" name="msg" rows="4" placeholder="Conte em poucas linhas o que você precisa..." required></textarea>
+      </div>
+      <button class="btn btn-primary btn-block btn-wa" type="submit">
+        <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M20.5 11.7A8.4 8.4 0 0 1 8 19.3L3.5 20.5l1.2-4.4A8.4 8.4 0 1 1 20.5 11.7Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M8.8 8.4c-.5.6-.4 1.7.4 2.9.9 1.3 2 2 2.9 2.4 1 .4 1.7.3 2.2-.2l.6-.7-1.9-1.2-.7.6c-.6-.3-1.3-.9-1.8-1.7l.6-.7L9.8 7.9l-1 .5Z" fill="currentColor"/></svg>
+        Enviar pelo WhatsApp
+      </button>
+      <button class="btn-link" type="button" id="send-email">Prefiro enviar por e-mail</button>
+      <p class="form-note" id="form-note" role="status">Abre o WhatsApp com a mensagem já escrita.</p>
+    </form>
+  </div>
+</section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <a class="brand" href="#hero">
+        <span class="brand-text">Pixel<span class="grad-text">Lab</span></span>
+      </a>
+      <p class="footer-tag">Soluções de Software Sob Medida.<br>E-commerce, hotelaria e sistemas customizados.</p>
+    </div>
+
+    <nav aria-label="Links rápidos">
+      <h4>Navegação</h4>
+      <ul class="footer-links">
+        <li><a href="#sobre">Sobre</a></li>
+        <li><a href="#projetos">Projetos</a></li>
+        <li><a href="#servicos">Serviços</a></li>
+        <li><a href="#stack">Stack</a></li>
+      </ul>
+    </nav>
+
+    <nav aria-label="Mais links">
+      <h4>Projeto</h4>
+      <ul class="footer-links">
+        <li><a href="#processo">Como funciona</a></li>
+        <li><a href="#valores">Valores</a></li>
+        <li><a href="#faq">Dúvidas frequentes</a></li>
+        <li><a href="#contato">Contato</a></li>
+      </ul>
+    </nav>
+
+    <div>
+      <h4>Contato</h4>
+      <ul class="footer-links footer-contact">
+        <li><a href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Vi%20o%20site%20da%20PixelLab%20e%20quero%20conversar%20sobre%20um%20projeto." target="_blank" rel="noopener">(31) 99908-2523</a></li>
+        <li><a href="mailto:cauathomarco@gmail.com">cauathomarco@gmail.com</a></li>
+      </ul>
+      <ul class="footer-social">
+        <li><a href="https://wa.me/5531999082523" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.5 11.7A8.4 8.4 0 0 1 8 19.3L3.5 20.5l1.2-4.4A8.4 8.4 0 1 1 20.5 11.7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </a></li>
+        <li><a href="https://www.linkedin.com/in/thomarco" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7.5 10.5V17M7.5 7.6v.1M11.5 17v-3.6a2.2 2.2 0 0 1 4.4 0V17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </a></li>
+        <li><a href="https://github.com/CauaThomarco" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9.3 20.5v-2.6c-2.6.5-3.3-1.1-3.6-1.9-.2-.5-.9-1.5-1.5-1.8-.5-.3.3-.3.4-.3.8.1 1.4.7 1.8 1.3.8 1.3 2 1 2.9.7.2-.7.6-1.3 1-1.6-2.9-.4-4.2-1.9-4.2-4.1 0-1 .3-1.9 1-2.6-.3-.8-.1-1.9.1-2.4 0 0 .9.1 2.2 1.1a8.6 8.6 0 0 1 4.6 0c1.3-1 2.2-1.1 2.2-1.1.2.5.4 1.6.1 2.4.7.7 1 1.6 1 2.6 0 2.2-1.3 3.7-4.2 4.1.6.5 1 1.4 1 2.2v3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a></li>
+        <li><a href="mailto:cauathomarco@gmail.com" aria-label="E-mail">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m3.5 7 8.5 6 8.5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>&copy; <span id="year">2026</span> PixelLab. Todos os direitos reservados.</p>
+    <p>Desenvolvido por <a href="https://github.com/CauaThomarco" target="_blank" rel="noopener">Cauã Thomarco</a></p>
+  </div>
+</footer>
+
+<!-- Botão flutuante de WhatsApp — aparece depois do hero -->
+<a class="wa-float" id="wa-float"
+   href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Vi%20o%20site%20da%20PixelLab%20e%20quero%20conversar%20sobre%20um%20projeto."
+   target="_blank" rel="noopener" aria-label="Falar no WhatsApp: (31) 99908-2523">
+  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M20.5 11.7A8.4 8.4 0 0 1 8 19.3L3.5 20.5l1.2-4.4A8.4 8.4 0 1 1 20.5 11.7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 8.4c-.5.6-.4 1.7.4 2.9.9 1.3 2 2 2.9 2.4 1 .4 1.7.3 2.2-.2l.6-.7-1.9-1.2-.7.6c-.6-.3-1.3-.9-1.8-1.7l.6-.7L9.8 7.9l-1 .5Z" fill="currentColor"/></svg>
+  <span>Falar no WhatsApp</span>
+</a>
+
+<script src="script.js" defer></script>
+</body>
+</html>
