@@ -1,6 +1,6 @@
-# PixelLab
+# Síntese Digital
 
-Site institucional da **PixelLab** — desenvolvimento de software sob medida
+Site institucional da **Síntese Digital** — desenvolvimento de software sob medida
 (e-commerce, sistemas para hotelaria/pousadas, websites e sistemas customizados).
 
 Site estático: HTML5 + CSS3 + JavaScript puro, sem build e sem dependências.
@@ -9,9 +9,13 @@ Site estático: HTML5 + CSS3 + JavaScript puro, sem build e sem dependências.
 
 | Arquivo      | Conteúdo                                                        |
 |--------------|-----------------------------------------------------------------|
-| `index.html` | Estrutura, conteúdo e meta tags (SEO / Open Graph / JSON-LD)     |
-| `styles.css` | Tema (tokens em `:root`), layout, animações e responsividade     |
-| `script.js`  | Tema claro/escuro, menu mobile, reveal on scroll, formulário     |
+| `index.html`  | Estrutura, conteúdo e meta tags (SEO / Open Graph / JSON-LD)    |
+| `styles.css`  | Tema (tokens em `:root`), layout, animações e responsividade    |
+| `script.js`   | Tema claro/escuro, menu mobile, reveal on scroll, formulário    |
+| `404.html`    | Página de erro, com CTA de volta e de WhatsApp                  |
+| `_headers`    | Cabeçalhos do Cloudflare Pages (segurança + cache)              |
+| `robots.txt`  | Libera indexação e aponta o sitemap                             |
+| `sitemap.xml` | Sitemap de uma URL                                              |
 
 Seções: hero, faixa de compromissos, sobre, portfólio (6 projetos), serviços, stack,
 processo, valores, FAQ, contato e footer.
@@ -58,7 +62,7 @@ Windows/macOS/Android no modo claro vê o site claro; no modo escuro, vê escuro
 cliente mudar o tema do sistema com o site aberto, a página acompanha na hora.
 
 O botão na barra de navegação sobrepõe essa detecção e a escolha fica salva em
-`localStorage` (chave `pixellab-theme`) — daí em diante vale a preferência manual.
+`localStorage` (chave `sintese-theme`) — daí em diante vale a preferência manual.
 Um script inline no `<head>` aplica o tema antes da primeira pintura, então não há
 flash de tema errado.
 
@@ -84,10 +88,47 @@ Marcados com `<!-- TODO: ... -->` no `index.html`:
   `script.js`). Para receber direto na caixa de entrada, trocar por um endpoint
   (Formspree, EmailJS ou API própria).
 
-## Deploy
+## Deploy — Cloudflare Pages (conectado ao GitHub)
 
-Sendo estático, publica em qualquer host: **Vercel**, Netlify, Cloudflare Pages
-ou GitHub Pages — sem configuração de build (basta apontar para a raiz).
+Cada `git push` na `main` publica sozinho. Configuração no painel, uma única vez:
+
+1. <https://dash.cloudflare.com> → **Workers & Pages** → **Create** → aba **Pages**
+   → **Connect to Git** (autorizar o GitHub, escolher `CauaThomarco/PixelLab`).
+2. Preencher:
+   - **Project name:** `sintese-digital` (define o domínio `sintese-digital.pages.dev`)
+   - **Production branch:** `main`
+   - **Framework preset:** `None`
+   - **Build command:** deixar **vazio** (site estático, não tem build)
+   - **Build output directory:** `/`
+3. **Save and Deploy**. Em ~1 minuto o site está em `sintese-digital.pages.dev`.
+
+O `_headers` é aplicado automaticamente pelo Pages, e o `404.html` passa a ser servido
+em qualquer rota inexistente. Cada branch/PR ganha uma URL de preview própria.
+
+## Domínio .com.br
+
+`sintesedigital.com.br` e `sintese-digital.com.br` **já estão registrados por terceiros**
+(consulta feita no RDAP do registro.br). Passos depois de escolher um nome livre:
+
+1. Comprar em <https://registro.br> (precisa de CPF/CNPJ; ~R$ 40/ano).
+2. Na Cloudflare: **Add a domain** → informar o domínio → o painel mostra dois
+   nameservers (algo como `xxx.ns.cloudflare.com`).
+3. No registro.br: painel do domínio → **DNS** → **Usar outros servidores DNS**
+   → colar os dois nameservers da Cloudflare. A propagação leva de minutos a algumas horas.
+4. No projeto do Pages: **Custom domains** → **Set up a custom domain** → digitar o
+   domínio (e repetir para `www`). O certificado SSL é emitido automaticamente.
+5. Trocar o domínio provisório nos 3 arquivos:
+
+   ```bash
+   # ajuste o domínio e rode na raiz do projeto
+   sed -i 's|sintese-digital.pages.dev|SEU-DOMINIO.com.br|g' index.html robots.txt sitemap.xml
+   ```
+
+   Isso atualiza `canonical`, `og:url`, `robots.txt` e `sitemap.xml` de uma vez.
+6. Enviar o sitemap no <https://search.google.com/search-console> para indexar.
+
+> `.idea/` (config do IntelliJ) está no `.gitignore`, mas ainda é rastreado por commits
+> anteriores. Para parar de versionar: `git rm -r --cached .idea`.
 
 ---
 

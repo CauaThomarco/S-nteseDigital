@@ -1,5 +1,5 @@
 /* =========================================================
-   PixelLab — interações
+   Síntese Digital — interações
    Tema, menu mobile, reveal on scroll, nav ativa, contadores,
    formulário (mailto).
    ========================================================= */
@@ -13,7 +13,7 @@
      Padrão: segue a preferência do sistema do visitante (claro ou escuro).
      Se ele usar o botão, a escolha manual passa a valer e fica salva.
      O tema inicial já foi aplicado pelo script inline no <head>. */
-  const THEME_KEY = "pixellab-theme";
+  const THEME_KEY = "sintese-theme";
   const themeBtn = document.getElementById("theme-toggle");
   const systemLight = window.matchMedia("(prefers-color-scheme: light)");
 
@@ -207,7 +207,7 @@
     if (!d) return;
 
     const texto =
-      `Olá, Cauã! Quero um orçamento com a PixelLab.\n\n` +
+      `Olá, Cauã! Quero um orçamento com a Síntese Digital.\n\n` +
       `Nome: ${d.nome}\n` +
       `E-mail: ${d.email}\n` +
       `Tipo de projeto: ${d.tipo}\n\n` +
@@ -223,7 +223,7 @@
     const d = coletar();
     if (!d) return;
 
-    const subject = `[PixelLab] Orçamento — ${d.tipo} — ${d.nome}`;
+    const subject = `[Síntese Digital] Orçamento — ${d.tipo} — ${d.nome}`;
     const body =
       `Nome: ${d.nome}\n` +
       `E-mail: ${d.email}\n` +

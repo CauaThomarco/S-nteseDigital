@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Página não encontrada — Síntese Digital</title>
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#05060f">
+<script>
+(function () {
+  var t;
+  try { t = localStorage.getItem("sintese-theme"); } catch (e) {}
+  if (t !== "light" && t !== "dark") {
+    t = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  }
+  document.documentElement.setAttribute("data-theme", t);
+})();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b0e1e'/%3E%3Cpath d='M17 19c14 0 12 13 24 13' stroke='%238b5cf6' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Cpath d='M17 45c14 0 12-13 24-13' stroke='%236366f1' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='44' cy='32' r='5' fill='%2322d3ee'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .erro {
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 40px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .erro-code {
+    font-family: var(--font-display);
+    font-size: clamp(4.5rem, 18vw, 9rem);
+    font-weight: 700;
+    letter-spacing: -.04em;
+    line-height: 1;
+  }
+  .erro h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin-top: 18px; }
+  .erro p { color: var(--text-dim); margin-top: 14px; max-width: 46ch; margin-inline: auto; }
+  .erro .hero-cta { margin-top: 34px; }
+</style>
+</head>
+<body>
+<section class="erro">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="grid-floor"></div>
+  </div>
+
+  <div class="hero-inner">
+    <p class="erro-code grad-text">404</p>
+    <h1>Essa página não existe</h1>
+    <p>O endereço pode ter mudado ou o link estava incorreto. Volte para o início — ou fale
+      direto comigo pelo WhatsApp.</p>
+
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="/">Voltar ao início</a>
+      <a class="btn btn-ghost btn-wa" href="https://wa.me/5531999082523?text=Ol%C3%A1%2C%20Cau%C3%A3!%20Vi%20o%20site%20da%20S%C3%ADntese%20Digital%20e%20quero%20conversar%20sobre%20um%20projeto." target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.5 11.7A8.4 8.4 0 0 1 8 19.3L3.5 20.5l1.2-4.4A8.4 8.4 0 1 1 20.5 11.7Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M8.8 8.4c-.5.6-.4 1.7.4 2.9.9 1.3 2 2 2.9 2.4 1 .4 1.7.3 2.2-.2l.6-.7-1.9-1.2-.7.6c-.6-.3-1.3-.9-1.8-1.7l.6-.7L9.8 7.9l-1 .5Z" fill="currentColor"/></svg>
+        Falar no WhatsApp
+      </a>
+    </div>
+  </div>
+</section>
+</body>
+</html>
