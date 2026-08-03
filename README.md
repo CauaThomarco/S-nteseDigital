@@ -11,7 +11,7 @@ Site estático: HTML5 + CSS3 + JavaScript puro, sem build e sem dependências.
 |--------------|-----------------------------------------------------------------|
 | `index.html`  | Estrutura, conteúdo e meta tags (SEO / Open Graph / JSON-LD)    |
 | `styles.css`  | Tema (tokens em `:root`), layout, animações e responsividade    |
-| `script.js`   | Tema claro/escuro, menu mobile, reveal on scroll, formulário    |
+| `script.js`   | Módulos de interação (tema, menu, reveal, contadores, formulário) |
 | `404.html`    | Página de erro, com CTA de volta e de WhatsApp                  |
 | `_headers`    | Cabeçalhos do Cloudflare Pages (segurança + cache)              |
 | `robots.txt`  | Libera indexação e aponta o sitemap                             |
@@ -30,6 +30,63 @@ processo, valores, FAQ, contato e footer.
 | Hotel Descanso Garantido | Gerenciamento de hotel (C++) | repo `Hotel-Descanso-Garantido` |
 | SLEM | Logística de entrega de mercadorias (C++) | WhatsApp "Quero algo assim" |
 | FireShield | Site de denúncia de queimadas | repo `FireShield` |
+
+## Como o `script.js` está organizado
+
+O arquivo é uma IIFE dividida em duas partes: uma infraestrutura pequena e uma
+lista de módulos independentes.
+
+- **Cada módulo tem uma responsabilidade só** e a forma `{ nome, iniciar(ctx) }`:
+  `tema`, `menu`, `barra`, `reveal`, `navegacao-ativa`, `contadores`,
+  `formulario`, `ano`. Nenhum conhece os outros.
+- **Para adicionar comportamento**, escreva o módulo e inclua na constante
+  `MODULOS` no fim do arquivo — o núcleo não muda.
+- **Nenhum módulo fala com `window`/`document` direto** para rolagem ou
+  visibilidade: recebe `ctx.rolagem` e `ctx.visibilidade`. É isso que garante
+  **um único listener de scroll** na página inteira, em vez de um por módulo.
+- Um módulo que quebre não derruba os outros: o núcleo isola cada `iniciar()`
+  e registra o erro no console com o nome do módulo.
+
+## Desempenho — o que foi feito e por quê
+
+O site travava ao rolar e demorava para pintar. As causas e as correções:
+
+| Causa | Correção |
+|---|---|
+| 20 elementos com `backdrop-filter: blur(14px)` — **19 borravam um fundo sólido**, custo total e efeito zero | `.glass` sem blur; blur real só na nav (`.glass-blur`), e só no desktop |
+| 3 orbs `filter: blur(90px)` de 46vw animados com `scale()` | `radial-gradient` sem filtro, animando só `translate3d` |
+| `grid-floor` animando `background-position` | Pseudo-elemento em `translate3d` |
+| `mix-blend-mode: screen` na scanline | Gradiente com alfa, que compõe na GPU |
+| `box-shadow` animado nos pontinhos "pulse" | Anel em pseudo-elemento com `transform`/`opacity` |
+| Fontes travando a primeira pintura | `media="print"` + `onload`, e Space Grotesk 500 removido (não era usado) |
+| Transição de cor permanente no `body` | Classe `.theme-anim` só durante a troca manual |
+| Halo do botão flutuante animando escondido | Animação só com a classe `.show` |
+
+`content-visibility: auto` nas seções foi testado e **descartado de propósito**:
+os elementos dentro de uma seção pulada só passam a ser observados quando a
+seção inteira vira relevante, e aí todo o reveal dispara de uma vez.
+
+## Responsividade
+
+- **Ordem dos breakpoints corrigida** (1040 → 980 → 860 → 620 → 400). O bloco de
+  1040px vinha *depois* do de 860px e reescrevia o menu mobile, deixando os links
+  espremidos em `.88rem` no celular. Agora ele é `(min-width: 861px) and
+  (max-width: 1040px)` e não alcança mais o menu.
+- **Campos do formulário em 16px no mobile** — abaixo disso o Safari do iPhone dá
+  zoom sozinho ao focar e a página fica torta até fechar o teclado.
+- **Notch e barra de gestos**: `env(safe-area-inset-*)` na nav, no container, no
+  rodapé e no botão flutuante.
+- **Alvos de toque**: 48px nos links do menu, 44px nos botões de ícone.
+- **`:hover` só com ponteiro real** (`@media (hover: hover) and (pointer: fine)`).
+  No celular o hover "grudava" depois do toque e o card ficava levantado.
+- **Fundo animado desligado até 860px** — o custo por frame não compensa em tela
+  pequena e a mancha de luz estática mantém o visual.
+- Menu mobile rola sozinho se não couber (celular em paisagem) e fecha ao passar
+  para largura de desktop.
+- Breakpoints extras para iPhone SE (≤400px) e para paisagem baixa (≤520px).
+
+Conferido em viewports de 390×844 (iPhone 14), 360×800 (Android) e 375×667
+(iPhone SE): sem rolagem horizontal, menu e formulário funcionando.
 
 ## Rodar localmente
 

@@ -41,6 +41,16 @@
   --radius-sm: 12px;
   --nav-h: 72px;
   --ease: cubic-bezier(.22, .68, 0, 1);
+
+  /* durações — curtas o bastante para a interface parecer imediata */
+  --t-fast: .18s;
+  --t: .26s;
+  --t-slow: .42s;
+
+  /* recuos de tela cheia (notch do iPhone, barra de gestos do Android) */
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
 }
 
 [data-theme="light"] {
@@ -78,10 +88,22 @@ body {
   color: var(--text);
   line-height: 1.65;
   font-size: 16px;
-  overflow-x: hidden;
+  overflow-x: clip; /* clip não cria contexto de rolagem: não quebra o scroll do iOS */
   -webkit-font-smoothing: antialiased;
-  transition: background .4s var(--ease), color .4s var(--ease);
+  -webkit-tap-highlight-color: transparent;
 }
+
+/* A transição de cor do tema é cara (repinta a página inteira). Só vale a pena
+   quando o visitante clica no botão — o JS liga a classe pela duração da troca. */
+body.theme-anim,
+body.theme-anim * {
+  transition: background-color var(--t-slow) var(--ease),
+              border-color var(--t-slow) var(--ease),
+              color var(--t-slow) var(--ease) !important;
+}
+
+/* Toque: sem atraso de 300ms e sem seleção acidental em elementos clicáveis */
+a, button, summary, .btn, label { touch-action: manipulation; }
 
 img, svg { display: block; max-width: 100%; }
 ul, ol { list-style: none; }
@@ -123,12 +145,30 @@ h1, h2, h3, h4 {
   padding-inline: 24px;
 }
 
+/* Superfície dos cards.
+   Não usa backdrop-filter de propósito: fora do hero o fundo atrás é sólido,
+   então o blur não mudava nada na tela e custava uma recomposição por card a
+   cada rolagem — com 20 cards, era a causa principal do scroll travado.
+   O blur real ficou só onde existe algo para borrar: .glass-blur (nav e menu). */
 .glass {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+.glass-blur {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+/* Só aplica o blur onde o navegador consegue fazer em GPU sem custo por frame */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  @media (min-width: 861px) {
+    .glass-blur {
+      backdrop-filter: blur(12px) saturate(140%);
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+    }
+  }
 }
 
 .grad-text {
@@ -192,10 +232,8 @@ h1, h2, h3, h4 {
   white-space: nowrap;
   transition: transform .3s var(--ease), box-shadow .3s var(--ease), background .3s, border-color .3s, color .3s;
 }
-.btn svg { transition: transform .3s var(--ease); }
-.btn:hover { transform: translateY(-2px); }
-.btn:hover svg { transform: translateX(3px); }
-.btn:active { transform: translateY(0); }
+.btn svg { transition: transform var(--t) var(--ease); }
+.btn:active { transform: translateY(1px); }
 
 .btn-primary {
   position: relative;
@@ -214,9 +252,6 @@ h1, h2, h3, h4 {
 
 .btn-sm { padding: 10px 20px; font-size: .88rem; }
 .btn-block { width: 100%; margin-top: 8px; }
-
-/* CTA de WhatsApp: ícone não desliza, ele "pulsa" de leve no hover */
-.btn-wa:hover svg { transform: scale(1.12); }
 
 .btn-link {
   display: block;
@@ -272,8 +307,7 @@ h1, h2, h3, h4 {
   flex-shrink: 0;
 }
 .brand-mark { display: grid; place-items: center; }
-.brand-mark svg { transition: transform .5s var(--ease); }
-.brand:hover .brand-mark svg { transform: rotate(-8deg) scale(1.06); }
+.brand-mark svg { transition: transform var(--t-slow) var(--ease); }
 
 .nav-links {
   display: flex;
@@ -321,9 +355,8 @@ h1, h2, h3, h4 {
   border: 1px solid var(--border);
   color: var(--text-dim);
   cursor: pointer;
-  transition: color .25s, border-color .25s, transform .25s var(--ease);
+  transition: color var(--t-fast), border-color var(--t-fast), transform var(--t-fast) var(--ease);
 }
-.icon-btn:hover { color: var(--text); border-color: var(--violet); transform: translateY(-1px); }
 
 .ico-sun { display: none; }
 [data-theme="light"] .ico-sun { display: block; }
@@ -343,7 +376,8 @@ h1, h2, h3, h4 {
 /* ---------- Hero ---------- */
 .hero {
   position: relative;
-  min-height: 100svh;
+  min-height: 100vh;
+  min-height: 100svh; /* svh ignora a barra do navegador que some ao rolar */
   display: grid;
   place-items: center;
   padding: calc(var(--nav-h) + 60px) 0 90px;
@@ -351,47 +385,86 @@ h1, h2, h3, h4 {
   text-align: center;
 }
 
-.hero-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* isola o fundo: animação aqui dentro nunca invalida o layout do resto */
+  contain: strict;
+}
 
+/* Os orbs eram width:46vw + filter: blur(90px) animados com scale().
+   Cada frame obrigava o navegador a redesenhar e re-borrar uma superfície de
+   ~700x700px, três vezes — era o que derrubava o FPS já no hero.
+   O radial-gradient com parada suave dá a mesma mancha de luz sem filtro
+   nenhum, e a animação passou a mexer só em translate3d, que roda na GPU. */
 .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
   opacity: .55;
-  animation: float 18s ease-in-out infinite;
-  will-change: transform;
+  animation: float 22s ease-in-out infinite;
 }
-.orb-1 { width: 46vw; height: 46vw; top: -12%; left: -8%; background: radial-gradient(circle, #6366f1, transparent 70%); }
-.orb-2 { width: 40vw; height: 40vw; top: 12%; right: -10%; background: radial-gradient(circle, #8b5cf6, transparent 70%); animation-delay: -6s; }
-.orb-3 { width: 34vw; height: 34vw; bottom: -12%; left: 32%; background: radial-gradient(circle, #22d3ee, transparent 70%); opacity: .35; animation-delay: -12s; }
-[data-theme="light"] .orb { opacity: .3; }
+.orb-1 {
+  width: 60vw; height: 60vw; top: -18%; left: -14%;
+  background: radial-gradient(closest-side, rgba(99, 102, 241, .75), rgba(99, 102, 241, .28) 45%, transparent 76%);
+}
+.orb-2 {
+  width: 54vw; height: 54vw; top: 6%; right: -16%;
+  background: radial-gradient(closest-side, rgba(139, 92, 246, .7), rgba(139, 92, 246, .26) 45%, transparent 76%);
+  animation-delay: -7s;
+}
+.orb-3 {
+  width: 46vw; height: 46vw; bottom: -18%; left: 28%;
+  background: radial-gradient(closest-side, rgba(34, 211, 238, .55), rgba(34, 211, 238, .2) 45%, transparent 76%);
+  opacity: .35;
+  animation-delay: -14s;
+}
+[data-theme="light"] .orb { opacity: .32; }
 
+/* Sem scale(): mudar a escala de uma camada grande força nova rasterização */
 @keyframes float {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  33%      { transform: translate3d(3vw, 4vh, 0) scale(1.08); }
-  66%      { transform: translate3d(-3vw, -3vh, 0) scale(.95); }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  33%      { transform: translate3d(3vw, 4vh, 0); }
+  66%      { transform: translate3d(-3vw, -3vh, 0); }
 }
 
 .grid-floor {
   position: absolute;
-  inset: 42% -20% -20% -20%;
+  inset: 42% -20% -30% -20%;
+  overflow: hidden;
+  transform: perspective(520px) rotateX(66deg);
+  mask-image: linear-gradient(to bottom, transparent, #000 35%, transparent 92%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 35%, transparent 92%);
+}
+/* A grade rolava via background-position, propriedade que repinta a camada
+   inteira a cada frame. Agora quem se move é um filho em translate3d, alto o
+   bastante para o loop de 56px não mostrar a borda. */
+.grid-floor::before {
+  content: "";
+  position: absolute;
+  inset: -56px 0 0;
   background-image:
     linear-gradient(rgba(139, 92, 246, .16) 1px, transparent 1px),
     linear-gradient(90deg, rgba(139, 92, 246, .16) 1px, transparent 1px);
   background-size: 56px 56px;
-  transform: perspective(520px) rotateX(66deg);
-  mask-image: linear-gradient(to bottom, transparent, #000 35%, transparent 92%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 35%, transparent 92%);
   animation: grid-move 9s linear infinite;
 }
-@keyframes grid-move { to { background-position: 0 56px, 56px 0; } }
+@keyframes grid-move {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, 56px, 0); }
+}
 
+/* mix-blend-mode: screen tirava o hero do caminho rápido de composição.
+   O mesmo brilho sai de um gradiente com alfa, que compõe direto na GPU. */
 .scanline {
   position: absolute;
   inset: 0;
-  background: linear-gradient(transparent 0%, rgba(34, 211, 238, .045) 50%, transparent 100%);
-  background-size: 100% 8px;
-  mix-blend-mode: screen;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(34, 211, 238, .035) 0 1px,
+    transparent 1px 8px
+  );
   opacity: .5;
 }
 [data-theme="light"] .scanline, [data-theme="light"] .grid-floor { opacity: .35; }
@@ -405,23 +478,32 @@ h1, h2, h3, h4 {
   padding: 8px 18px;
   border-radius: 999px;
   border: 1px solid var(--border-strong);
-  background: var(--surface);
-  backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--surface-solid) 66%, transparent);
   font-size: .82rem;
   color: var(--text-dim);
   font-family: var(--font-mono);
   letter-spacing: .04em;
 }
-.pill .dot {
+/* O halo era um box-shadow animado — propriedade que repinta a cada frame.
+   Virou um anel em pseudo-elemento animado só por transform/opacity. */
+.pill .dot, .live-dot {
+  position: relative;
   width: 7px; height: 7px;
   border-radius: 50%;
   background: var(--green);
-  box-shadow: 0 0 0 0 rgba(52, 211, 153, .7);
-  animation: pulse 2.4s infinite;
+  flex-shrink: 0;
+}
+.pill .dot::after, .live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(52, 211, 153, .7);
+  animation: pulse 2.4s ease-out infinite;
 }
 @keyframes pulse {
-  70%  { box-shadow: 0 0 0 9px rgba(52, 211, 153, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+  from      { transform: scale(1);   opacity: .7; }
+  70%, 100% { transform: scale(3.6); opacity: 0; }
 }
 
 .hero-title {
@@ -595,7 +677,7 @@ h1, h2, h3, h4 {
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: transform .45s var(--ease), border-color .45s, box-shadow .45s;
+  transition: transform var(--t) var(--ease), border-color var(--t), box-shadow var(--t);
 }
 .project::after {
   content: "";
@@ -604,14 +686,9 @@ h1, h2, h3, h4 {
   border-radius: inherit;
   pointer-events: none;
   opacity: 0;
-  transition: opacity .45s;
+  transition: opacity var(--t);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
 }
-.project:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow), 0 0 50px -20px color-mix(in srgb, var(--accent) 60%, transparent);
-}
-.project:hover::after { opacity: 1; }
 
 .project-visual {
   position: relative;
@@ -625,9 +702,8 @@ h1, h2, h3, h4 {
 .project-visual svg {
   width: 100%; height: 100%;
   object-fit: cover;
-  transition: transform .6s var(--ease);
+  transition: transform var(--t-slow) var(--ease);
 }
-.project:hover .project-visual svg { transform: scale(1.045); }
 
 .badge {
   position: absolute;
@@ -638,10 +714,9 @@ h1, h2, h3, h4 {
   font-family: var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
-  background: rgba(5, 6, 15, .6);
+  background: rgba(5, 6, 15, .72);
   border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
   color: color-mix(in srgb, var(--accent) 82%, #fff);
-  backdrop-filter: blur(8px);
 }
 
 /* selo "No ar" para projetos publicados */
@@ -654,13 +729,7 @@ h1, h2, h3, h4 {
   border-color: rgba(52, 211, 153, .55);
   color: #6ee7b7;
 }
-.live-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 0 0 rgba(52, 211, 153, .7);
-  animation: pulse 2.4s infinite;
-}
+.live-dot { width: 6px; height: 6px; }
 
 .project-body {
   padding: 24px;
@@ -702,8 +771,7 @@ h1, h2, h3, h4 {
   color: color-mix(in srgb, var(--accent) 85%, var(--text));
   width: fit-content;
 }
-.project-link svg { transition: transform .3s var(--ease); }
-.project-link:hover svg { transform: translate(2px, -2px); }
+.project-link svg { transition: transform var(--t) var(--ease); }
 
 /* ---------- Cards (serviços) ---------- */
 .cards {
@@ -713,7 +781,7 @@ h1, h2, h3, h4 {
 }
 .card {
   padding: 30px 26px;
-  transition: transform .45s var(--ease), border-color .45s, box-shadow .45s;
+  transition: transform var(--t) var(--ease), border-color var(--t), box-shadow var(--t);
   position: relative;
   overflow: hidden;
 }
@@ -724,11 +792,9 @@ h1, h2, h3, h4 {
   width: 140%; height: 120%;
   background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--accent, #8b5cf6) 22%, transparent), transparent 60%);
   opacity: 0;
-  transition: opacity .5s;
+  transition: opacity var(--t);
   pointer-events: none;
 }
-.card:hover { transform: translateY(-6px); border-color: var(--border-strong); box-shadow: var(--shadow); }
-.card:hover::before { opacity: 1; }
 
 .card-ico {
   width: 50px; height: 50px;
@@ -767,8 +833,7 @@ h1, h2, h3, h4 {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 22px;
 }
-.stack-col { padding: 26px 24px; transition: border-color .4s, transform .4s var(--ease); }
-.stack-col:hover { border-color: var(--border-strong); transform: translateY(-4px); }
+.stack-col { padding: 26px 24px; transition: border-color var(--t), transform var(--t) var(--ease); }
 .stack-col h3 {
   display: flex;
   align-items: center;
@@ -790,9 +855,8 @@ h1, h2, h3, h4 {
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text-dim);
-  transition: color .25s, border-color .25s, transform .25s var(--ease);
+  transition: color var(--t-fast), border-color var(--t-fast), transform var(--t-fast) var(--ease);
 }
-.chips li:hover { color: var(--text); border-color: var(--violet); transform: translateY(-2px); }
 
 /* ---------- Processo ---------- */
 .steps {
@@ -807,7 +871,7 @@ h1, h2, h3, h4 {
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--surface);
-  transition: border-color .4s, transform .4s var(--ease), background .4s;
+  transition: border-color var(--t), transform var(--t) var(--ease), background var(--t);
 }
 .step::before {
   content: "";
@@ -817,7 +881,6 @@ h1, h2, h3, h4 {
   background: linear-gradient(90deg, var(--violet), transparent);
 }
 .step:last-child::before { display: none; }
-.step:hover { transform: translateY(-5px); border-color: color-mix(in srgb, var(--violet) 45%, transparent); }
 
 .step-num {
   font-family: var(--font-mono);
@@ -845,9 +908,8 @@ h1, h2, h3, h4 {
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: transform .45s var(--ease), border-color .45s, box-shadow .45s;
+  transition: transform var(--t) var(--ease), border-color var(--t), box-shadow var(--t);
 }
-.price:hover { transform: translateY(-5px); border-color: var(--border-strong); }
 .price.featured {
   border-color: color-mix(in srgb, var(--violet) 50%, transparent);
   box-shadow: var(--glow);
@@ -951,12 +1013,7 @@ h1, h2, h3, h4 {
   background: linear-gradient(120deg,
     color-mix(in srgb, var(--green) 16%, transparent),
     color-mix(in srgb, var(--cyan) 10%, transparent));
-  transition: transform .35s var(--ease), box-shadow .35s, border-color .35s;
-}
-.wa-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--green);
-  box-shadow: 0 18px 46px -20px color-mix(in srgb, var(--green) 75%, transparent);
+  transition: transform var(--t) var(--ease), box-shadow var(--t), border-color var(--t);
 }
 .wa-card-ico {
   display: grid;
@@ -970,8 +1027,7 @@ h1, h2, h3, h4 {
 .wa-card-txt { display: grid; line-height: 1.45; }
 .wa-card-txt strong { font-family: var(--font-display); font-size: 1.06rem; }
 .wa-card-txt small { color: var(--text-dim); font-size: .84rem; }
-.wa-card-arrow { margin-left: auto; color: var(--green); transition: transform .3s var(--ease); }
-.wa-card:hover .wa-card-arrow { transform: translateX(4px); }
+.wa-card-arrow { margin-left: auto; color: var(--green); transition: transform var(--t) var(--ease); }
 
 .channels-label {
   margin-top: 26px;
@@ -989,11 +1045,7 @@ h1, h2, h3, h4 {
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--surface);
-  transition: transform .3s var(--ease), border-color .3s, background .3s;
-}
-.channels a:hover {
-  transform: translateX(4px);
-  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  transition: transform var(--t) var(--ease), border-color var(--t), background var(--t);
 }
 .ch-ico {
   display: grid;
@@ -1079,9 +1131,8 @@ h1, h2, h3, h4 {
 .footer-links a {
   font-size: .91rem;
   color: var(--text-dim);
-  transition: color .25s, padding-left .25s var(--ease);
+  transition: color var(--t-fast), padding-left var(--t-fast) var(--ease);
 }
-.footer-links a:hover { color: var(--text); padding-left: 5px; }
 
 .footer-contact { margin-bottom: 18px; }
 .footer-contact a { font-family: var(--font-mono); font-size: .86rem; }
@@ -1095,9 +1146,8 @@ h1, h2, h3, h4 {
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-dim);
-  transition: color .25s, border-color .25s, transform .25s var(--ease);
+  transition: color var(--t-fast), border-color var(--t-fast), transform var(--t-fast) var(--ease);
 }
-.footer-social a:hover { color: var(--text); border-color: var(--violet); transform: translateY(-3px); }
 
 .footer-bottom {
   display: flex;
@@ -1116,8 +1166,8 @@ h1, h2, h3, h4 {
 /* ---------- Botão flutuante de WhatsApp ---------- */
 .wa-float {
   position: fixed;
-  right: 22px;
-  bottom: 22px;
+  right: calc(22px + var(--safe-r));
+  bottom: calc(22px + var(--safe-b));
   z-index: 90;
   display: flex;
   align-items: center;
@@ -1131,7 +1181,8 @@ h1, h2, h3, h4 {
   opacity: 0;
   visibility: hidden;
   transform: translateY(14px) scale(.94);
-  transition: opacity .4s var(--ease), transform .4s var(--ease), visibility .4s, gap .35s var(--ease), box-shadow .3s;
+  transition: opacity var(--t-slow) var(--ease), transform var(--t-slow) var(--ease),
+              visibility var(--t-slow), gap var(--t) var(--ease), box-shadow var(--t);
 }
 .wa-float.show { opacity: 1; visibility: visible; transform: none; }
 .wa-float svg { flex-shrink: 0; }
@@ -1142,42 +1193,105 @@ h1, h2, h3, h4 {
   font-weight: 600;
   font-size: .93rem;
   opacity: 0;
-  transition: max-width .4s var(--ease), opacity .3s;
+  transition: max-width var(--t-slow) var(--ease), opacity var(--t);
 }
-.wa-float:hover, .wa-float:focus-visible {
-  gap: 10px;
-  box-shadow: 0 18px 44px -10px rgba(16, 185, 129, .85);
-}
-.wa-float:hover span, .wa-float:focus-visible span { max-width: 190px; opacity: 1; }
 
-/* halo pulsante para chamar atenção sem ser intrusivo */
+/* halo pulsante para chamar atenção sem ser intrusivo.
+   Só anima enquanto o botão está visível — escondido, a animação seguia
+   rodando no fundo e consumindo frames à toa. */
 .wa-float::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   border: 1px solid rgba(52, 211, 153, .8);
-  animation: wa-pulse 2.8s ease-out infinite;
+  opacity: 0;
   pointer-events: none;
 }
+.wa-float.show::before { animation: wa-pulse 2.8s ease-out infinite; }
 @keyframes wa-pulse {
   0%        { transform: scale(1); opacity: .7; }
   70%, 100% { transform: scale(1.28); opacity: 0; }
 }
 
 /* ---------- Reveal on scroll ---------- */
+/* Só opacity e transform: as duas propriedades que o navegador anima na GPU
+   sem recalcular layout. Duração menor porque 0.8s + atraso fazia o conteúdo
+   parecer que estava "chegando atrasado" ao rolar rápido. */
 .reveal {
   opacity: 0;
-  transform: translateY(26px);
-  transition: opacity .8s var(--ease), transform .8s var(--ease);
+  transform: translate3d(0, 22px, 0);
+  transition: opacity var(--t-slow) var(--ease), transform var(--t-slow) var(--ease);
 }
 .reveal.visible { opacity: 1; transform: none; }
-.reveal[data-delay="1"] { transition-delay: .09s; }
-.reveal[data-delay="2"] { transition-delay: .18s; }
-.reveal[data-delay="3"] { transition-delay: .27s; }
-.reveal[data-delay="4"] { transition-delay: .36s; }
+.reveal[data-delay="1"] { transition-delay: .06s; }
+.reveal[data-delay="2"] { transition-delay: .12s; }
+.reveal[data-delay="3"] { transition-delay: .18s; }
+.reveal[data-delay="4"] { transition-delay: .24s; }
 
-/* ---------- Responsivo ---------- */
+/* ---------- Hover: só onde existe ponteiro de verdade ----------
+   Em celular o :hover "gruda" depois do toque — o card fica levantado e a
+   sombra presa até o próximo tap. Tudo que envolve movimento vive aqui. */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { transform: translateY(-2px); }
+  .btn:hover svg { transform: translateX(3px); }
+  /* no CTA de WhatsApp o ícone pulsa em vez de deslizar */
+  .btn-wa:hover svg { transform: scale(1.12); }
+
+  .brand:hover .brand-mark svg { transform: rotate(-8deg) scale(1.06); }
+  .icon-btn:hover { color: var(--text); border-color: var(--violet); transform: translateY(-1px); }
+
+  .project:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow), 0 0 50px -20px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+  .project:hover::after { opacity: 1; }
+  .project:hover .project-visual svg { transform: scale(1.045); }
+  .project-link:hover svg { transform: translate(2px, -2px); }
+
+  .card:hover { transform: translateY(-6px); border-color: var(--border-strong); box-shadow: var(--shadow); }
+  .card:hover::before { opacity: 1; }
+
+  .stack-col:hover { border-color: var(--border-strong); transform: translateY(-4px); }
+  .chips li:hover { color: var(--text); border-color: var(--violet); transform: translateY(-2px); }
+  .step:hover { transform: translateY(-5px); border-color: color-mix(in srgb, var(--violet) 45%, transparent); }
+  .price:hover { transform: translateY(-5px); border-color: var(--border-strong); }
+
+  .wa-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--green);
+    box-shadow: 0 18px 46px -20px color-mix(in srgb, var(--green) 75%, transparent);
+  }
+  .wa-card:hover .wa-card-arrow { transform: translateX(4px); }
+
+  .channels a:hover {
+    transform: translateX(4px);
+    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+
+  .footer-links a:hover { color: var(--text); padding-left: 5px; }
+  .footer-social a:hover { color: var(--text); border-color: var(--violet); transform: translateY(-3px); }
+
+  /* o rótulo do botão flutuante só se abre com mouse; no celular ele é redondo */
+  .wa-float:hover { gap: 10px; box-shadow: 0 18px 44px -10px rgba(16, 185, 129, .85); }
+  .wa-float:hover span { max-width: 190px; opacity: 1; }
+}
+
+/* Teclado: o rótulo abre no foco em qualquer aparelho */
+.wa-float:focus-visible { gap: 10px; }
+.wa-float:focus-visible span { max-width: 190px; opacity: 1; }
+
+/* ---------- Responsivo ----------
+   Ordem decrescente de largura, do maior para o menor. Antes o bloco de
+   1040px vinha depois do de 860px e reescrevia o menu mobile, deixando os
+   links espremidos em 0.88rem no celular. */
+
+/* Entre 861 e 1040px o espaço aperta com 7 links + CTA na mesma barra.
+   O piso de 861px garante que esta regra nunca alcance o menu mobile. */
+@media (min-width: 861px) and (max-width: 1040px) {
+  .nav-links a { padding: 9px 10px; font-size: .88rem; }
+}
+
 @media (max-width: 980px) {
   .about-grid, .contact-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
@@ -1186,7 +1300,7 @@ h1, h2, h3, h4 {
 
 @media (max-width: 860px) {
   :root { --nav-h: 62px; }
-  .nav-wrap { padding: 12px 16px; }
+  .nav-wrap { padding: 12px calc(16px + var(--safe-r)) 12px calc(16px + var(--safe-l)); }
   .nav { padding-right: 8px; }
   .burger { display: flex; }
   .nav-cta { display: none; }
@@ -1201,18 +1315,24 @@ h1, h2, h3, h4 {
     margin: 0;
     padding: 14px;
     border-radius: 22px;
-    background: color-mix(in srgb, var(--surface-solid) 94%, transparent);
+    background: var(--surface-solid);
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
-    backdrop-filter: blur(16px);
+    /* menu mais alto que a tela (aparelho pequeno em paisagem) rola sozinho,
+       sem arrastar a página junto */
+    max-height: calc(100svh - var(--nav-h) - 40px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px) scale(.98);
+    transform: translate3d(0, -10px, 0);
     transform-origin: top center;
-    transition: opacity .3s var(--ease), transform .3s var(--ease), visibility .3s;
+    transition: opacity var(--t) var(--ease), transform var(--t) var(--ease), visibility var(--t);
   }
   .nav-links.open { opacity: 1; visibility: visible; transform: none; }
-  .nav-links a { padding: 13px 16px; border-radius: 12px; font-size: 1rem; }
+  /* 48px de altura: acima do mínimo de toque do Android e do iOS */
+  .nav-links a { padding: 14px 16px; border-radius: 12px; font-size: 1rem; min-height: 48px; }
   .nav-links a.active::after { display: none; }
 
   /* CTA aparece dentro do menu mobile */
@@ -1223,15 +1343,17 @@ h1, h2, h3, h4 {
     color: #fff;
     font-weight: 600;
   }
-}
 
-@media (max-width: 1040px) {
-  /* espaço fica curto com 7 links + CTA */
-  .nav-links a { padding: 9px 10px; font-size: .88rem; }
+  /* O hero é a única parte com fundo animado: em telas pequenas o custo por
+     frame não compensa, e a mancha de luz estática mantém o visual. */
+  .orb { animation: none; }
+  .grid-floor::before { animation: none; }
 }
 
 @media (max-width: 620px) {
-  .container { padding-inline: 18px; }
+  .container {
+    padding-inline: calc(18px + var(--safe-l)) calc(18px + var(--safe-r));
+  }
   .hero { min-height: auto; padding: calc(var(--nav-h) + 76px) 0 84px; }
   .hero-stats { justify-content: flex-start; text-align: left; gap: 22px 32px; }
   .hero-cta .btn { flex: 1 1 100%; }
@@ -1239,14 +1361,46 @@ h1, h2, h3, h4 {
   .scroll-hint { display: none; }
   .trust-grid { gap: 14px; }
 
-  /* no mobile o flutuante fica redondo, sem rótulo, e não cobre o rodapé */
-  .wa-float { right: 16px; bottom: 16px; width: 56px; height: 56px; padding: 0; justify-content: center; }
-  .wa-float span { display: none; }
-  .footer-bottom { padding-bottom: 84px; }
   .projects, .cards, .stack-grid, .steps, .price-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr; gap: 30px; }
-  .footer-bottom { justify-content: flex-start; }
+  .footer-bottom { justify-content: flex-start; padding-bottom: calc(84px + var(--safe-b)); }
   .price.featured { transform: none; }
+
+  /* Campos com menos de 16px fazem o Safari do iPhone dar zoom sozinho ao
+     receber foco — e a página fica torta até o visitante fechar o teclado. */
+  .field input, .field select, .field textarea { font-size: 16px; }
+
+  /* no mobile o flutuante fica redondo, sem rótulo, e não cobre o rodapé */
+  .wa-float {
+    right: calc(16px + var(--safe-r));
+    bottom: calc(16px + var(--safe-b));
+    width: 56px; height: 56px;
+    padding: 0;
+    justify-content: center;
+  }
+  .wa-float span { display: none; }
+
+  /* alvos de toque confortáveis */
+  .icon-btn { width: 44px; height: 44px; }
+  .footer-social a { width: 44px; height: 44px; }
+  .btn { padding: 15px 24px; }
+}
+
+/* iPhone SE / telas estreitas: evita quebra feia de título e de cards */
+@media (max-width: 400px) {
+  .container { padding-inline: calc(14px + var(--safe-l)) calc(14px + var(--safe-r)); }
+  .hero-title { font-size: clamp(2rem, 10vw, 2.6rem); }
+  .project-body, .card { padding: 20px 18px; }
+  .price { padding: 26px 20px; }
+  .contact-form { padding: 20px 18px; }
+  .brand-text { font-size: 1rem; }
+  .hero-stats { gap: 18px 24px; }
+}
+
+/* Paisagem em celular: o hero de tela cheia não cabe, encolhe o respiro */
+@media (max-height: 520px) and (orientation: landscape) {
+  .hero { min-height: auto; padding: calc(var(--nav-h) + 40px) 0 48px; }
+  .scroll-hint { display: none; }
 }
 
 /* ---------- Acessibilidade / motion ---------- */

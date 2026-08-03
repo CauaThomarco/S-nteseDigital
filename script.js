@@ -1,243 +1,440 @@
 /* =========================================================
    Síntese Digital — interações
-   Tema, menu mobile, reveal on scroll, nav ativa, contadores,
-   formulário (mailto).
+
+   Organização: um núcleo pequeno que só orquestra, e módulos
+   independentes com uma responsabilidade cada.
+
+   - Cada módulo é { nome, iniciar(ctx) } e não conhece os outros.
+   - Para adicionar um comportamento novo, basta escrever o módulo e
+     incluí-lo na lista MODULOS lá embaixo — o núcleo não muda.
+   - Nenhum módulo fala com window/document direto: tudo o que precisam
+     (rolagem, visibilidade, aparelho) chega pelo contexto, o que mantém
+     um único listener de scroll na página inteira.
    ========================================================= */
 (function () {
   "use strict";
 
-  const html = document.documentElement;
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* =======================================================
+     INFRAESTRUTURA
+     ======================================================= */
 
-  /* ---------- 1. Tema ----------
-     Padrão: segue a preferência do sistema do visitante (claro ou escuro).
-     Se ele usar o botão, a escolha manual passa a valer e fica salva.
+  /* ---------- Preferências do aparelho ---------- */
+  const criarAparelho = () => {
+    const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)");
+    return {
+      /* lido na hora do uso: o visitante pode mudar a preferência com a
+         página aberta */
+      get reduzMovimento() { return semMovimento.matches; },
+      temIntersectionObserver: "IntersectionObserver" in window,
+    };
+  };
+
+  /* ---------- Rolagem ----------
+     Um único listener para a página toda. Cada assinante recebe a posição
+     já calculada, dentro de um requestAnimationFrame — sem isso, cada
+     módulo com seu próprio listener multiplicaria o trabalho por frame. */
+  const criarRolagem = () => {
+    const assinantes = [];
+    let agendado = false;
+    let alturaTela = window.innerHeight;
+
+    const notificar = () => {
+      agendado = false;
+      const estado = { y: window.scrollY, alturaTela };
+      for (const assinante of assinantes) assinante(estado);
+    };
+
+    const agendar = () => {
+      if (agendado) return;
+      agendado = true;
+      requestAnimationFrame(notificar);
+    };
+
+    window.addEventListener("scroll", agendar, { passive: true });
+    window.addEventListener("resize", () => {
+      alturaTela = window.innerHeight;
+      agendar();
+    }, { passive: true });
+
+    return {
+      /* devolve uma função para cancelar, caso algum dia seja preciso */
+      assinar(fn) {
+        assinantes.push(fn);
+        fn({ y: window.scrollY, alturaTela });
+        return () => {
+          const i = assinantes.indexOf(fn);
+          if (i > -1) assinantes.splice(i, 1);
+        };
+      },
+    };
+  };
+
+  /* ---------- Visibilidade ----------
+     Abstrai o IntersectionObserver. Quem usa não precisa saber se ele
+     existe no navegador: sem suporte, o retorno de emergência é chamar o
+     callback na hora, deixando o conteúdo visível. */
+  const criarVisibilidade = (aparelho) => ({
+    aoAparecer(elementos, callback, opcoes) {
+      const lista = Array.from(elementos);
+      if (!lista.length) return;
+
+      if (!aparelho.temIntersectionObserver) {
+        lista.forEach(callback);
+        return;
+      }
+
+      const observador = new IntersectionObserver((entradas) => {
+        for (const entrada of entradas) {
+          if (!entrada.isIntersecting) continue;
+          callback(entrada.target);
+          /* uma vez só: parar de observar evita trabalho a cada rolagem */
+          observador.unobserve(entrada.target);
+        }
+      }, opcoes);
+
+      lista.forEach((el) => observador.observe(el));
+    },
+
+    /* variante que continua observando (usada pela navegação ativa) */
+    aoEntrarESair(elementos, callback, opcoes) {
+      const lista = Array.from(elementos);
+      if (!lista.length || !aparelho.temIntersectionObserver) return;
+
+      const observador = new IntersectionObserver((entradas) => {
+        for (const entrada of entradas) {
+          if (entrada.isIntersecting) callback(entrada.target);
+        }
+      }, opcoes);
+
+      lista.forEach((el) => observador.observe(el));
+    },
+  });
+
+  /* =======================================================
+     MÓDULOS — uma responsabilidade cada
+     ======================================================= */
+
+  /* ---------- Tema claro / escuro ----------
+     Padrão: segue a preferência do sistema do visitante. Se ele usar o
+     botão, a escolha manual passa a valer e fica salva.
      O tema inicial já foi aplicado pelo script inline no <head>. */
-  const THEME_KEY = "sintese-theme";
-  const themeBtn = document.getElementById("theme-toggle");
-  const systemLight = window.matchMedia("(prefers-color-scheme: light)");
+  const moduloTema = {
+    nome: "tema",
+    iniciar() {
+      const CHAVE = "sintese-theme";
+      const raiz = document.documentElement;
+      const botao = document.getElementById("theme-toggle");
+      const sistemaClaro = window.matchMedia("(prefers-color-scheme: light)");
 
-  const readStored = () => {
-    try {
-      const v = localStorage.getItem(THEME_KEY);
-      return v === "light" || v === "dark" ? v : null;
-    } catch (e) { return null; }
+      const lerSalvo = () => {
+        try {
+          const v = localStorage.getItem(CHAVE);
+          return v === "light" || v === "dark" ? v : null;
+        } catch (e) { return null; }
+      };
+
+      const aplicar = (tema) => {
+        raiz.setAttribute("data-theme", tema);
+
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", tema === "light" ? "#f5f6fb" : "#05060f");
+
+        if (botao) {
+          const rotulo = tema === "light" ? "Ativar tema escuro" : "Ativar tema claro";
+          botao.setAttribute("aria-label", rotulo);
+          botao.setAttribute("title", rotulo);
+        }
+      };
+
+      /* A transição de cores repinta a página inteira, então ela só é ligada
+         durante a troca manual — deixá-la sempre ativa fazia toda rolagem
+         com mudança de cor custar mais caro. */
+      let limpar;
+      const aplicarComTransicao = (tema) => {
+        document.body.classList.add("theme-anim");
+        aplicar(tema);
+        clearTimeout(limpar);
+        limpar = setTimeout(() => document.body.classList.remove("theme-anim"), 450);
+      };
+
+      aplicar(lerSalvo() || (sistemaClaro.matches ? "light" : "dark"));
+
+      botao?.addEventListener("click", () => {
+        const proximo = raiz.getAttribute("data-theme") === "light" ? "dark" : "light";
+        aplicarComTransicao(proximo);
+        try { localStorage.setItem(CHAVE, proximo); } catch (e) { /* modo privado */ }
+      });
+
+      /* Visitante trocou o tema do sistema: acompanha, desde que não haja
+         escolha manual salva. */
+      const aoMudarSistema = (e) => {
+        if (!lerSalvo()) aplicarComTransicao(e.matches ? "light" : "dark");
+      };
+      if (sistemaClaro.addEventListener) sistemaClaro.addEventListener("change", aoMudarSistema);
+      else if (sistemaClaro.addListener) sistemaClaro.addListener(aoMudarSistema); // Safari antigo
+    },
   };
 
-  const applyTheme = (theme) => {
-    html.setAttribute("data-theme", theme);
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", theme === "light" ? "#f5f6fb" : "#05060f");
-    if (themeBtn) {
-      themeBtn.setAttribute("aria-label",
-        theme === "light" ? "Ativar tema escuro" : "Ativar tema claro");
-      themeBtn.setAttribute("title",
-        theme === "light" ? "Ativar tema escuro" : "Ativar tema claro");
-    }
+  /* ---------- Menu mobile ---------- */
+  const moduloMenu = {
+    nome: "menu",
+    iniciar() {
+      const botao = document.getElementById("burger");
+      const links = document.getElementById("nav-links");
+      if (!botao || !links) return;
+
+      const definir = (aberto) => {
+        links.classList.toggle("open", aberto);
+        botao.setAttribute("aria-expanded", String(aberto));
+        botao.setAttribute("aria-label", aberto ? "Fechar menu" : "Abrir menu");
+      };
+
+      const fechar = () => definir(false);
+
+      botao.addEventListener("click", () => {
+        definir(!links.classList.contains("open"));
+      });
+
+      /* fecha ao escolher um destino */
+      links.addEventListener("click", (e) => {
+        if (e.target.closest("a")) fechar();
+      });
+
+      /* fecha ao tocar fora */
+      document.addEventListener("click", (e) => {
+        if (!links.classList.contains("open")) return;
+        if (!e.target.closest(".nav")) fechar();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") fechar();
+      });
+
+      /* girar o aparelho para paisagem pode passar da largura do menu
+         mobile: sem isso o menu fica aberto e desalinhado */
+      const larguraMobile = window.matchMedia("(max-width: 860px)");
+      const aoSair = (e) => { if (!e.matches) fechar(); };
+      if (larguraMobile.addEventListener) larguraMobile.addEventListener("change", aoSair);
+      else if (larguraMobile.addListener) larguraMobile.addListener(aoSair);
+    },
   };
 
-  applyTheme(readStored() || (systemLight.matches ? "light" : "dark"));
+  /* ---------- Sombra da nav + botão flutuante de WhatsApp ---------- */
+  const moduloBarra = {
+    nome: "barra",
+    iniciar({ rolagem }) {
+      const nav = document.getElementById("nav");
+      const flutuante = document.getElementById("wa-float");
 
-  themeBtn?.addEventListener("click", () => {
-    const next = html.getAttribute("data-theme") === "light" ? "dark" : "light";
-    applyTheme(next);
-    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignora */ }
-  });
+      /* guarda o último estado para não mexer no DOM quando nada mudou:
+         classList.toggle a cada frame invalida estilo à toa */
+      let rolou = null;
+      let mostrando = null;
 
-  // Cliente trocou o tema do sistema: acompanha, desde que não haja escolha manual
-  const onSystemChange = (e) => {
-    if (!readStored()) applyTheme(e.matches ? "light" : "dark");
-  };
-  if (systemLight.addEventListener) systemLight.addEventListener("change", onSystemChange);
-  else if (systemLight.addListener) systemLight.addListener(onSystemChange); // Safari antigo
+      rolagem.assinar(({ y, alturaTela }) => {
+        const rolouAgora = y > 24;
+        if (rolouAgora !== rolou) {
+          rolou = rolouAgora;
+          nav?.classList.toggle("scrolled", rolouAgora);
+        }
 
-  /* ---------- 2. Menu mobile ---------- */
-  const burger = document.getElementById("burger");
-  const navLinks = document.getElementById("nav-links");
-
-  const closeMenu = () => {
-    navLinks?.classList.remove("open");
-    burger?.setAttribute("aria-expanded", "false");
-    burger?.setAttribute("aria-label", "Abrir menu");
-  };
-
-  burger?.addEventListener("click", () => {
-    const open = navLinks.classList.toggle("open");
-    burger.setAttribute("aria-expanded", String(open));
-    burger.setAttribute("aria-label", open ? "Fechar menu" : "Abrir menu");
-  });
-
-  navLinks?.addEventListener("click", (e) => {
-    if (e.target.closest("a")) closeMenu();
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!navLinks?.classList.contains("open")) return;
-    if (!e.target.closest(".nav")) closeMenu();
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeMenu();
-  });
-
-  /* ---------- 3. Sombra da nav + botão flutuante de WhatsApp ---------- */
-  const navWrap = document.getElementById("nav");
-  const waFloat = document.getElementById("wa-float");
-  let ticking = false;
-  const onScroll = () => {
-    const y = window.scrollY;
-    navWrap?.classList.toggle("scrolled", y > 24);
-    // aparece só depois do hero, onde o CTA principal já saiu da tela
-    waFloat?.classList.toggle("show", y > window.innerHeight * 0.7);
-    ticking = false;
-  };
-  window.addEventListener("scroll", () => {
-    if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
-  }, { passive: true });
-  onScroll();
-
-  /* ---------- 4. Reveal on scroll ---------- */
-  const revealables = document.querySelectorAll(".reveal");
-
-  if (reduceMotion || !("IntersectionObserver" in window)) {
-    revealables.forEach((el) => el.classList.add("visible"));
-  } else {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-          io.unobserve(entry.target);
+        /* o flutuante só aparece depois do hero, onde o CTA principal
+           já saiu da tela */
+        const mostrarAgora = y > alturaTela * 0.7;
+        if (mostrarAgora !== mostrando) {
+          mostrando = mostrarAgora;
+          flutuante?.classList.toggle("show", mostrarAgora);
         }
       });
-    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-
-    revealables.forEach((el) => io.observe(el));
-  }
-
-  /* ---------- 5. Link ativo na navegação ---------- */
-  const sections = Array.from(document.querySelectorAll("main section[id]"));
-  const linkFor = new Map();
-  document.querySelectorAll('.nav-links a[href^="#"]').forEach((a) => {
-    linkFor.set(a.getAttribute("href").slice(1), a);
-  });
-
-  if ("IntersectionObserver" in window && sections.length) {
-    const spy = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        linkFor.forEach((a) => a.classList.remove("active"));
-        linkFor.get(entry.target.id)?.classList.add("active");
-      });
-    }, { rootMargin: "-45% 0px -50% 0px" });
-
-    sections.forEach((s) => spy.observe(s));
-  }
-
-  /* ---------- 6. Contadores ---------- */
-  const counters = document.querySelectorAll(".counter");
-  const runCounter = (el) => {
-    const target = Number(el.dataset.to || 0);
-    if (reduceMotion) { el.textContent = String(target); return; }
-    const duration = 1100;
-    const start = performance.now();
-    const tick = (now) => {
-      const p = Math.min((now - start) / duration, 1);
-      el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
+    },
   };
 
-  if ("IntersectionObserver" in window) {
-    const co = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) { runCounter(entry.target); co.unobserve(entry.target); }
+  /* ---------- Reveal on scroll ---------- */
+  const moduloReveal = {
+    nome: "reveal",
+    iniciar({ aparelho, visibilidade }) {
+      const elementos = document.querySelectorAll(".reveal");
+
+      if (aparelho.reduzMovimento) {
+        elementos.forEach((el) => el.classList.add("visible"));
+        return;
+      }
+
+      visibilidade.aoAparecer(
+        elementos,
+        (el) => el.classList.add("visible"),
+        { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+      );
+    },
+  };
+
+  /* ---------- Link ativo na navegação ---------- */
+  const moduloNavegacaoAtiva = {
+    nome: "navegacao-ativa",
+    iniciar({ visibilidade }) {
+      const secoes = document.querySelectorAll("main section[id]");
+      const linkPorId = new Map();
+
+      document.querySelectorAll('.nav-links a[href^="#"]').forEach((a) => {
+        linkPorId.set(a.getAttribute("href").slice(1), a);
       });
-    }, { threshold: 0.5 });
-    counters.forEach((c) => co.observe(c));
-  } else {
-    counters.forEach(runCounter);
-  }
+      if (!linkPorId.size) return;
 
-  /* ---------- 7. Ano no footer ---------- */
-  const year = document.getElementById("year");
-  if (year) year.textContent = String(new Date().getFullYear());
+      visibilidade.aoEntrarESair(secoes, (secao) => {
+        linkPorId.forEach((a) => a.classList.remove("active"));
+        linkPorId.get(secao.id)?.classList.add("active");
+      }, { rootMargin: "-45% 0px -50% 0px" });
+    },
+  };
 
-  /* ---------- 8. Formulário de contato ----------
+  /* ---------- Contadores ---------- */
+  const moduloContadores = {
+    nome: "contadores",
+    iniciar({ aparelho, visibilidade }) {
+      const contadores = document.querySelectorAll(".counter");
+
+      const contar = (el) => {
+        const alvo = Number(el.dataset.to || 0);
+
+        if (aparelho.reduzMovimento) {
+          el.textContent = String(alvo);
+          return;
+        }
+
+        const duracao = 1100;
+        const inicio = performance.now();
+
+        const passo = (agora) => {
+          const p = Math.min((agora - inicio) / duracao, 1);
+          el.textContent = String(Math.round(alvo * (1 - Math.pow(1 - p, 3))));
+          if (p < 1) requestAnimationFrame(passo);
+        };
+
+        requestAnimationFrame(passo);
+      };
+
+      visibilidade.aoAparecer(contadores, contar, { threshold: 0.5 });
+    },
+  };
+
+  /* ---------- Formulário de contato ----------
      Sem backend: o envio principal abre o WhatsApp com a mensagem escrita.
      O link secundário monta um mailto com os mesmos dados.
-     Para receber direto na caixa de entrada, troque por um endpoint
+     Para receber direto na caixa de entrada, trocar por um endpoint
      (Formspree, EmailJS ou API própria). */
-  const WHATSAPP = "5531999082523";
-  const DESTINO = "cauathomarco@gmail.com";
-  const form = document.getElementById("contact-form");
-  const note = document.getElementById("form-note");
-  const emailBtn = document.getElementById("send-email");
+  const moduloFormulario = {
+    nome: "formulario",
+    iniciar() {
+      const WHATSAPP = "5531999082523";
+      const DESTINO = "cauathomarco@gmail.com";
 
-  // Valida e devolve os dados, ou null se algo estiver faltando
-  const coletar = () => {
-    const dados = {
-      nome: form.nome.value.trim(),
-      email: form.email.value.trim(),
-      tipo: form.tipo.value,
-      msg: form.msg.value.trim(),
-    };
+      const form = document.getElementById("contact-form");
+      const aviso = document.getElementById("form-note");
+      const botaoEmail = document.getElementById("send-email");
+      if (!form) return;
 
-    let ok = true;
-    [
-      [form.nome, dados.nome.length >= 2],
-      [form.email, /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(dados.email)],
-      [form.msg, dados.msg.length >= 10],
-    ].forEach(([field, valid]) => {
-      field.classList.toggle("invalid", !valid);
-      if (!valid) ok = false;
-    });
+      /* Valida e devolve os dados, ou null se algo estiver faltando */
+      const coletar = () => {
+        const dados = {
+          nome: form.nome.value.trim(),
+          email: form.email.value.trim(),
+          tipo: form.tipo.value,
+          msg: form.msg.value.trim(),
+        };
 
-    if (!ok) {
-      note.textContent = "Preencha nome, um e-mail válido e uma descrição do projeto.";
-      note.classList.remove("ok");
-      return null;
-    }
-    return dados;
+        let ok = true;
+        [
+          [form.nome, dados.nome.length >= 2],
+          [form.email, /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(dados.email)],
+          [form.msg, dados.msg.length >= 10],
+        ].forEach(([campo, valido]) => {
+          campo.classList.toggle("invalid", !valido);
+          if (!valido) ok = false;
+        });
+
+        if (!ok) {
+          aviso.textContent = "Preencha nome, um e-mail válido e uma descrição do projeto.";
+          aviso.classList.remove("ok");
+          return null;
+        }
+        return dados;
+      };
+
+      const resumo = (d) =>
+        `Nome: ${d.nome}\n` +
+        `E-mail: ${d.email}\n` +
+        `Tipo de projeto: ${d.tipo}\n\n` +
+        `Sobre o projeto:\n${d.msg}`;
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const d = coletar();
+        if (!d) return;
+
+        const texto = `Olá, Cauã! Quero um orçamento com a Síntese Digital.\n\n${resumo(d)}`;
+        window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(texto)}`, "_blank", "noopener");
+
+        aviso.textContent = "Abrindo o WhatsApp com a sua mensagem...";
+        aviso.classList.add("ok");
+      });
+
+      botaoEmail?.addEventListener("click", () => {
+        const d = coletar();
+        if (!d) return;
+
+        const assunto = `[Síntese Digital] Orçamento — ${d.tipo} — ${d.nome}`;
+        window.location.href =
+          `mailto:${DESTINO}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(resumo(d) + "\n")}`;
+
+        aviso.textContent = "Abrindo seu app de e-mail com a mensagem pronta...";
+        aviso.classList.add("ok");
+      });
+
+      /* tirar o vermelho assim que o visitante começa a corrigir */
+      form.addEventListener("input", (e) => {
+        e.target.classList?.remove("invalid");
+      });
+    },
   };
 
-  form?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const d = coletar();
-    if (!d) return;
+  /* ---------- Ano no rodapé ---------- */
+  const moduloAno = {
+    nome: "ano",
+    iniciar() {
+      const ano = document.getElementById("year");
+      if (ano) ano.textContent = String(new Date().getFullYear());
+    },
+  };
 
-    const texto =
-      `Olá, Cauã! Quero um orçamento com a Síntese Digital.\n\n` +
-      `Nome: ${d.nome}\n` +
-      `E-mail: ${d.email}\n` +
-      `Tipo de projeto: ${d.tipo}\n\n` +
-      `Sobre o projeto:\n${d.msg}`;
+  /* =======================================================
+     NÚCLEO
+     ======================================================= */
 
-    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(texto)}`, "_blank", "noopener");
+  const MODULOS = [
+    moduloTema,
+    moduloMenu,
+    moduloBarra,
+    moduloReveal,
+    moduloNavegacaoAtiva,
+    moduloContadores,
+    moduloFormulario,
+    moduloAno,
+  ];
 
-    note.textContent = "Abrindo o WhatsApp com a sua mensagem...";
-    note.classList.add("ok");
-  });
+  const aparelho = criarAparelho();
+  const contexto = {
+    aparelho,
+    rolagem: criarRolagem(),
+    visibilidade: criarVisibilidade(aparelho),
+  };
 
-  emailBtn?.addEventListener("click", () => {
-    const d = coletar();
-    if (!d) return;
-
-    const subject = `[Síntese Digital] Orçamento — ${d.tipo} — ${d.nome}`;
-    const body =
-      `Nome: ${d.nome}\n` +
-      `E-mail: ${d.email}\n` +
-      `Tipo de projeto: ${d.tipo}\n\n` +
-      `Sobre o projeto:\n${d.msg}\n`;
-
-    window.location.href =
-      `mailto:${DESTINO}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    note.textContent = "Abrindo seu app de e-mail com a mensagem pronta...";
-    note.classList.add("ok");
-  });
-
-  form?.addEventListener("input", (e) => {
-    e.target.classList?.remove("invalid");
-  });
+  for (const modulo of MODULOS) {
+    /* um módulo que quebre não pode derrubar os outros — sem isso, um erro
+       no formulário deixaria o menu do celular sem funcionar */
+    try {
+      modulo.iniciar(contexto);
+    } catch (erro) {
+      console.error(`[Síntese Digital] falha no módulo "${modulo.nome}":`, erro);
+    }
+  }
 })();
