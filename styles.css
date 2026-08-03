@@ -1118,6 +1118,24 @@ h1, h2, h3, h4 {
   padding-bottom: 44px;
 }
 .footer-tag { margin-top: 14px; color: var(--text-faint); font-size: .9rem; }
+
+/* Logo do rodapé — a variante disponível é escura (fundo navy embutido).
+   No tema escuro ela se funde com o footer; no tema claro escondemos o PNG
+   e mostramos a marca textual, evitando um bloco escuro no meio de um
+   layout claro. Se um dia existir variante clara, é só remover a regra
+   [data-theme="light"] abaixo e apontar o src correto. */
+.brand-footer { padding: 0; }
+.brand-logo {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 100%;
+  border-radius: 8px;
+}
+.brand-footer .brand-fallback { display: none; }
+
+[data-theme="light"] .brand-logo { display: none; }
+[data-theme="light"] .brand-footer .brand-fallback { display: inline-flex; }
 .footer h4 {
   font-size: .8rem;
   text-transform: uppercase;
