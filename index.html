@@ -480,51 +480,65 @@
       <p class="section-desc">Cinco frentes de atuação — combináveis conforme a necessidade do projeto.</p>
     </header>
 
-    <div class="cards">
-      <article class="card glass reveal">
-        <div class="card-ico" style="--accent:#f472b6" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 7h16l-1.4 11.2A2 2 0 0 1 16.6 20H7.4a2 2 0 0 1-2-1.8L4 7Zm4 0V5.6A4 4 0 0 1 12 2a4 4 0 0 1 4 3.6V7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <h3>E-commerce</h3>
-        <p>Lojas online completas: catálogo, carrinho, checkout seguro, controle de estoque e painel administrativo.</p>
-        <ul class="mini-list"><li>Gateway de pagamento</li><li>Gestão de pedidos</li><li>Painel de estoque</li></ul>
-      </article>
+    <div class="cards-carousel reveal" data-carrossel>
+      <button type="button" class="carrossel-btn carrossel-prev" aria-label="Especialidade anterior" data-carrossel-prev>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
 
-      <article class="card glass reveal" data-delay="1">
-        <div class="card-ico" style="--accent:#22d3ee" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 21V6.5L12 3l9 3.5V21M3 21h18M9 21v-5h6v5M8 10h.01M12 10h.01M16 10h.01M8 13.5h.01M12 13.5h.01M16 13.5h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <h3>Hotelaria &amp; Pousadas</h3>
-        <p>Gestão de reservas, check-in digital, controle de quartos, tarifas por período e relatórios de ocupação.</p>
-        <ul class="mini-list"><li>Calendário de disponibilidade</li><li>Check-in / check-out</li><li>Relatórios gerenciais</li></ul>
-      </article>
+      <div class="cards-viewport" data-carrossel-viewport>
+        <div class="cards" data-carrossel-track>
+          <article class="card glass">
+            <div class="card-ico" style="--accent:#f472b6" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 7h16l-1.4 11.2A2 2 0 0 1 16.6 20H7.4a2 2 0 0 1-2-1.8L4 7Zm4 0V5.6A4 4 0 0 1 12 2a4 4 0 0 1 4 3.6V7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3>E-commerce</h3>
+            <p>Lojas online completas: catálogo, carrinho, checkout seguro, controle de estoque e painel administrativo.</p>
+            <ul class="mini-list"><li>Gateway de pagamento</li><li>Gestão de pedidos</li><li>Painel de estoque</li></ul>
+          </article>
 
-      <article class="card glass reveal" data-delay="2">
-        <div class="card-ico" style="--accent:#3b82f6" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="24" height="24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7 14v3M11 13v4M15 15v2M18 12v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        </div>
-        <h3>Gestão Interna</h3>
-        <p>Sistemas para operação do dia a dia: controle de clientes, produtos, ordens de serviço, financeiro e painéis com os indicadores que importam para o seu negócio.</p>
-        <ul class="mini-list"><li>Cadastros e permissões</li><li>Relatórios e dashboards</li><li>Exportação e integrações</li></ul>
-      </article>
+          <article class="card glass">
+            <div class="card-ico" style="--accent:#22d3ee" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M3 21V6.5L12 3l9 3.5V21M3 21h18M9 21v-5h6v5M8 10h.01M12 10h.01M16 10h.01M8 13.5h.01M12 13.5h.01M16 13.5h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3>Hotelaria &amp; Pousadas</h3>
+            <p>Gestão de reservas, check-in digital, controle de quartos, tarifas por período e relatórios de ocupação.</p>
+            <ul class="mini-list"><li>Calendário de disponibilidade</li><li>Check-in / check-out</li><li>Relatórios gerenciais</li></ul>
+          </article>
 
-      <article class="card glass reveal" data-delay="3">
-        <div class="card-ico" style="--accent:#8b5cf6" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        </div>
-        <h3>Websites Institucionais</h3>
-        <p>Landing pages e sites corporativos rápidos, responsivos e otimizados para conversão e busca orgânica.</p>
-        <ul class="mini-list"><li>Design sob medida</li><li>SEO técnico</li><li>Performance</li></ul>
-      </article>
+          <article class="card glass">
+            <div class="card-ico" style="--accent:#3b82f6" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7 14v3M11 13v4M15 15v2M18 12v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <h3>Gestão Interna</h3>
+            <p>Sistemas para operação do dia a dia: controle de clientes, produtos, ordens de serviço, financeiro e painéis com os indicadores que importam para o seu negócio.</p>
+            <ul class="mini-list"><li>Cadastros e permissões</li><li>Relatórios e dashboards</li><li>Exportação e integrações</li></ul>
+          </article>
 
-      <article class="card glass reveal" data-delay="4">
-        <div class="card-ico" style="--accent:#34d399" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="24" height="24"><path d="M10.3 3h3.4l.5 2.6 2.3 1.3 2.4-1 1.7 2.9-1.9 1.8V13l1.9 1.8-1.7 2.9-2.4-1-2.3 1.3-.5 2.6h-3.4l-.5-2.6L7.5 16l-2.4 1-1.7-2.9L5.3 13v-2.4L3.4 8.8l1.7-2.9 2.4 1 2.3-1.3.5-2.6Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="11.9" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+          <article class="card glass">
+            <div class="card-ico" style="--accent:#8b5cf6" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <h3>Websites Institucionais</h3>
+            <p>Landing pages e sites corporativos rápidos, responsivos e otimizados para conversão e busca orgânica.</p>
+            <ul class="mini-list"><li>Design sob medida</li><li>SEO técnico</li><li>Performance</li></ul>
+          </article>
+
+          <article class="card glass">
+            <div class="card-ico" style="--accent:#34d399" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M10.3 3h3.4l.5 2.6 2.3 1.3 2.4-1 1.7 2.9-1.9 1.8V13l1.9 1.8-1.7 2.9-2.4-1-2.3 1.3-.5 2.6h-3.4l-.5-2.6L7.5 16l-2.4 1-1.7-2.9L5.3 13v-2.4L3.4 8.8l1.7-2.9 2.4 1 2.3-1.3.5-2.6Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="11.9" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+            </div>
+            <h3>Sistemas Customizados</h3>
+            <p>Backend robusto, APIs REST bem documentadas, autenticação e integrações — do controle de logística e entregas a fluxos de negócio fora do padrão.</p>
+            <ul class="mini-list"><li>Spring Security / JWT</li><li>Logística e entregas</li><li>Integrações e webhooks</li><li>Modelagem de dados</li></ul>
+          </article>
         </div>
-        <h3>Sistemas Customizados</h3>
-        <p>Backend robusto, APIs REST bem documentadas, autenticação e integrações — do controle de logística e entregas a fluxos de negócio fora do padrão.</p>
-        <ul class="mini-list"><li>Spring Security / JWT</li><li>Logística e entregas</li><li>Integrações e webhooks</li><li>Modelagem de dados</li></ul>
-      </article>
+      </div>
+
+      <button type="button" class="carrossel-btn carrossel-next" aria-label="Próxima especialidade" data-carrossel-next>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <div class="carrossel-dots" role="tablist" aria-label="Escolher especialidade" data-carrossel-dots></div>
     </div>
   </div>
 </section>

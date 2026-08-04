@@ -432,6 +432,92 @@
     },
   };
 
+  /* ---------- Carrossel de especialidades ----------
+     A rolagem em si é do navegador (scroll-snap no CSS). O módulo só liga
+     botões e dots — mantém funcional sem JS, apenas sem os controles. */
+  const moduloCarrossel = {
+    nome: "carrossel",
+    iniciar({ aparelho }) {
+      const carrosseis = document.querySelectorAll("[data-carrossel]");
+
+      carrosseis.forEach((raiz) => {
+        const viewport = raiz.querySelector("[data-carrossel-viewport]");
+        const track = raiz.querySelector("[data-carrossel-track]");
+        const btnPrev = raiz.querySelector("[data-carrossel-prev]");
+        const btnNext = raiz.querySelector("[data-carrossel-next]");
+        const dotsWrap = raiz.querySelector("[data-carrossel-dots]");
+        if (!viewport || !track) return;
+
+        const cards = Array.from(track.children);
+        if (!cards.length) return;
+
+        /* cria um dot por card */
+        const dots = cards.map((_, i) => {
+          const d = document.createElement("button");
+          d.type = "button";
+          d.className = "carrossel-dot";
+          d.setAttribute("role", "tab");
+          d.setAttribute("aria-label", `Ir para especialidade ${i + 1}`);
+          d.addEventListener("click", () => irPara(i));
+          dotsWrap?.appendChild(d);
+          return d;
+        });
+
+        const irPara = (i) => {
+          const alvo = cards[Math.max(0, Math.min(i, cards.length - 1))];
+          if (!alvo) return;
+          viewport.scrollTo({
+            left: alvo.offsetLeft - track.offsetLeft,
+            behavior: aparelho.reduzMovimento ? "auto" : "smooth",
+          });
+        };
+
+        /* índice do card mais à esquerda visível — usado para dot ativo e
+           para o passo dos botões prev/next */
+        const cardVisivel = () => {
+          const x = viewport.scrollLeft;
+          let melhor = 0;
+          let menorDist = Infinity;
+          cards.forEach((c, i) => {
+            const dist = Math.abs(c.offsetLeft - track.offsetLeft - x);
+            if (dist < menorDist) { menorDist = dist; melhor = i; }
+          });
+          return melhor;
+        };
+
+        const atualizarControles = () => {
+          const atual = cardVisivel();
+          dots.forEach((d, i) => {
+            d.setAttribute("aria-current", i === atual ? "true" : "false");
+          });
+          /* desativa botões nos extremos */
+          const noInicio = viewport.scrollLeft <= 1;
+          const noFim = viewport.scrollLeft + viewport.clientWidth >= viewport.scrollWidth - 1;
+          if (btnPrev) btnPrev.disabled = noInicio;
+          if (btnNext) btnNext.disabled = noFim;
+        };
+
+        btnPrev?.addEventListener("click", () => irPara(cardVisivel() - 1));
+        btnNext?.addEventListener("click", () => irPara(cardVisivel() + 1));
+
+        /* rAF para não recalcular a cada evento de scroll */
+        let agendado = false;
+        viewport.addEventListener("scroll", () => {
+          if (agendado) return;
+          agendado = true;
+          requestAnimationFrame(() => {
+            agendado = false;
+            atualizarControles();
+          });
+        }, { passive: true });
+
+        window.addEventListener("resize", atualizarControles, { passive: true });
+
+        atualizarControles();
+      });
+    },
+  };
+
   /* ---------- Ano no rodapé ---------- */
   const moduloAno = {
     nome: "ano",
@@ -454,6 +540,7 @@
     moduloContadores,
     moduloFormulario,
     moduloTopo,
+    moduloCarrossel,
     moduloAno,
   ];
 

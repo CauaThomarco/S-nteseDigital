@@ -830,6 +830,111 @@ h1, h2, h3, h4 {
   opacity: .8;
 }
 
+/* ---------- Carrossel de especialidades ----------
+   Scroll-snap horizontal como base (funciona sem JS, com toque, com teclado).
+   O JS só adiciona botões, dots e liga o clique ao scroll. */
+.cards-carousel { position: relative; }
+
+.cards-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* respiro para o glow/borda do card não ser cortado pelo overflow */
+  margin: -8px;
+  padding: 8px;
+}
+.cards-viewport::-webkit-scrollbar { display: none; }
+
+.cards-carousel .cards {
+  display: flex;
+  grid-template-columns: unset;
+  gap: 22px;
+}
+
+.cards-carousel .card {
+  scroll-snap-align: start;
+  flex: 0 0 calc((100% - 44px) / 3);
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .cards-carousel .card { flex-basis: calc((100% - 22px) / 2); }
+}
+@media (max-width: 640px) {
+  .cards-carousel .card { flex-basis: 100%; }
+}
+
+.carrossel-btn {
+  position: absolute;
+  top: calc(50% - 24px);
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--surface-solid) 85%, transparent);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background var(--t), border-color var(--t), transform var(--t) var(--ease), opacity var(--t);
+  box-shadow: var(--shadow);
+}
+.carrossel-btn:hover {
+  border-color: var(--violet);
+  color: var(--violet);
+  transform: translateY(-50%) scale(1.06);
+}
+.carrossel-btn:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 3px;
+}
+.carrossel-btn[disabled] {
+  opacity: 0;
+  pointer-events: none;
+}
+.carrossel-prev { left: -12px; }
+.carrossel-next { right: -12px; }
+
+@media (max-width: 860px) {
+  .carrossel-btn { display: none; }
+}
+
+.carrossel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+.carrossel-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  background: var(--border-strong);
+  cursor: pointer;
+  transition: background var(--t), transform var(--t) var(--ease), width var(--t);
+}
+.carrossel-dot:hover { background: color-mix(in srgb, var(--violet) 60%, var(--border-strong)); }
+.carrossel-dot[aria-current="true"] {
+  background: var(--violet);
+  width: 22px;
+  border-radius: 4px;
+}
+.carrossel-dot:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cards-viewport { scroll-behavior: auto; }
+}
+
 /* ---------- Stack ---------- */
 .stack-grid {
   display: grid;
