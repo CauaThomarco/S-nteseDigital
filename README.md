@@ -1,7 +1,7 @@
 # Síntese Digital
 
 Site institucional da **Síntese Digital** — desenvolvimento de software sob medida
-(e-commerce, sistemas para hotelaria/pousadas, websites e sistemas customizados).
+(e-commerce, sistemas de gestão interna, sistemas para hotelaria/pousadas, websites e sistemas customizados).
 
 Site estático: HTML5 + CSS3 + JavaScript puro, sem build e sem dependências.
 

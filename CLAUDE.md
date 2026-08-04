@@ -1,8 +1,10 @@
 # CLAUDE.md — Síntese Digital
 
-Site institucional da startup **Síntese Digital** (do Cauã). A documentação
-técnica completa — estrutura, arquitetura, deploy, tema, responsividade —
-está no `README.md`. **Leia o README antes de mexer em qualquer coisa.**
+Site institucional da startup **Síntese Digital** (do Cauã). Foco de negócio:
+e-commerce, **sistemas de gestão interna**, sistemas para hotelaria/pousadas,
+sites institucionais e sistemas customizados/APIs. A documentação técnica
+completa — estrutura, arquitetura, deploy, tema, responsividade — está no
+`README.md`. **Leia o README antes de mexer em qualquer coisa.**
 
 Este arquivo é a "memória de bordo" para conversas futuras (e entre máquinas):
 convenções, decisões não-óbvias e pendências que não moram no código.
