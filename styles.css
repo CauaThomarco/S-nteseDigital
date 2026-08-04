@@ -362,7 +362,10 @@ h1, h2, h3, h4 {
 [data-theme="light"] .ico-sun { display: block; }
 [data-theme="light"] .ico-moon { display: none; }
 
-.burger { display: none; flex-direction: column; gap: 4px; }
+/* .icon-btn usa grid+place-items, mas o burger vira flex column: no flex
+   só align-items é herdado (justify-items é ignorado). Sem justify-content
+   as 3 listrinhas grudavam no topo do botão de 40/44px. */
+.burger { display: none; flex-direction: column; justify-content: center; gap: 4px; }
 .burger span {
   width: 17px; height: 1.8px;
   background: currentColor;
@@ -1232,6 +1235,31 @@ h1, h2, h3, h4 {
   70%, 100% { transform: scale(1.28); opacity: 0; }
 }
 
+/* Voltar ao topo — canto inferior esquerdo, aparece só quando o rodapé
+   entra na tela. Fica no lado oposto ao WhatsApp float para não competir
+   com o CTA principal. */
+.to-top {
+  position: fixed;
+  left: calc(22px + var(--safe-l));
+  bottom: calc(22px + var(--safe-b));
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  color: var(--text-dim);
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px) scale(.94);
+  transition: opacity var(--t-slow) var(--ease), transform var(--t-slow) var(--ease),
+              visibility var(--t-slow), color var(--t), border-color var(--t);
+}
+.to-top.show { opacity: 1; visibility: visible; transform: none; }
+
 /* ---------- Reveal on scroll ---------- */
 /* Só opacity e transform: as duas propriedades que o navegador anima na GPU
    sem recalcular layout. Duração menor porque 0.8s + atraso fazia o conteúdo
@@ -1293,6 +1321,8 @@ h1, h2, h3, h4 {
   /* o rótulo do botão flutuante só se abre com mouse; no celular ele é redondo */
   .wa-float:hover { gap: 10px; box-shadow: 0 18px 44px -10px rgba(16, 185, 129, .85); }
   .wa-float:hover span { max-width: 190px; opacity: 1; }
+
+  .to-top:hover { color: var(--text); border-color: var(--violet); transform: translateY(-3px); }
 }
 
 /* Teclado: o rótulo abre no foco em qualquer aparelho */
@@ -1322,6 +1352,9 @@ h1, h2, h3, h4 {
   .nav { padding-right: 8px; }
   .burger { display: flex; }
   .nav-cta { display: none; }
+  /* .nav-links sai do fluxo (position: absolute) no mobile — sem isso o
+     conjunto tema+burger cola no brand, deixando o canto direito vazio. */
+  .nav-actions { margin-left: auto; }
 
   .nav-links {
     position: absolute;
@@ -1397,6 +1430,12 @@ h1, h2, h3, h4 {
     justify-content: center;
   }
   .wa-float span { display: none; }
+
+  .to-top {
+    left: calc(16px + var(--safe-l));
+    bottom: calc(16px + var(--safe-b));
+    width: 52px; height: 52px;
+  }
 
   /* alvos de toque confortáveis */
   .icon-btn { width: 44px; height: 44px; }

@@ -397,6 +397,41 @@
     },
   };
 
+  /* ---------- Voltar ao topo ----------
+     Aparece quando o rodapé entra no campo de visão (com margem inferior
+     de 20% da tela, para dar tempo do visitante escolher clicar antes de
+     chegar no fim). Ao clicar, sobe suave — ou instantâneo, se a
+     preferência do sistema for reduzir movimento. */
+  const moduloTopo = {
+    nome: "topo",
+    iniciar({ aparelho }) {
+      const botao = document.getElementById("to-top");
+      const rodape = document.querySelector(".footer");
+      if (!botao || !rodape) return;
+
+      botao.addEventListener("click", () => {
+        window.scrollTo({
+          top: 0,
+          behavior: aparelho.reduzMovimento ? "auto" : "smooth",
+        });
+      });
+
+      /* sem IntersectionObserver o botão fica sempre acessível — deixá-lo
+         visível é preferível a esconder e nunca mostrar */
+      if (!aparelho.temIntersectionObserver) {
+        botao.classList.add("show");
+        return;
+      }
+
+      const observador = new IntersectionObserver((entradas) => {
+        for (const entrada of entradas) {
+          botao.classList.toggle("show", entrada.isIntersecting);
+        }
+      }, { threshold: 0, rootMargin: "0px 0px 20% 0px" });
+      observador.observe(rodape);
+    },
+  };
+
   /* ---------- Ano no rodapé ---------- */
   const moduloAno = {
     nome: "ano",
@@ -418,6 +453,7 @@
     moduloNavegacaoAtiva,
     moduloContadores,
     moduloFormulario,
+    moduloTopo,
     moduloAno,
   ];
 
