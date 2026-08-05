@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
 
-# Trocar pelo domínio final depois que ele for registrado
 Sitemap: https://sintesedigitaldev.com.br/sitemap.xml
