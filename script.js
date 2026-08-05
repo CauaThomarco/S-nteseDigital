@@ -433,11 +433,13 @@
   };
 
   /* ---------- Carrossel de especialidades ----------
-     A rolagem em si é do navegador (scroll-snap no CSS). O módulo só liga
-     botões e dots — mantém funcional sem JS, apenas sem os controles. */
+     A rolagem em si é do navegador (scroll-snap no CSS). O módulo liga botões,
+     dots e um autoplay independente — pausado em hover, foco, toque, aba
+     escondida e quando o carrossel sai da tela, para não ficar rodando à toa. */
   const moduloCarrossel = {
     nome: "carrossel",
     iniciar({ aparelho }) {
+      const INTERVALO = 4500; // ms entre trocas automáticas
       const carrosseis = document.querySelectorAll("[data-carrossel]");
 
       carrosseis.forEach((raiz) => {
@@ -451,14 +453,13 @@
         const cards = Array.from(track.children);
         if (!cards.length) return;
 
-        /* cria um dot por card */
         const dots = cards.map((_, i) => {
           const d = document.createElement("button");
           d.type = "button";
           d.className = "carrossel-dot";
           d.setAttribute("role", "tab");
           d.setAttribute("aria-label", `Ir para especialidade ${i + 1}`);
-          d.addEventListener("click", () => irPara(i));
+          d.addEventListener("click", () => { pausarPor(6000); irPara(i); });
           dotsWrap?.appendChild(d);
           return d;
         });
@@ -472,8 +473,6 @@
           });
         };
 
-        /* índice do card mais à esquerda visível — usado para dot ativo e
-           para o passo dos botões prev/next */
         const cardVisivel = () => {
           const x = viewport.scrollLeft;
           let melhor = 0;
@@ -490,15 +489,95 @@
           dots.forEach((d, i) => {
             d.setAttribute("aria-current", i === atual ? "true" : "false");
           });
-          /* desativa botões nos extremos */
-          const noInicio = viewport.scrollLeft <= 1;
-          const noFim = viewport.scrollLeft + viewport.clientWidth >= viewport.scrollWidth - 1;
-          if (btnPrev) btnPrev.disabled = noInicio;
-          if (btnNext) btnNext.disabled = noFim;
+          /* no autoplay não faz sentido desabilitar prev/next: eles dão a volta */
+          if (btnPrev) btnPrev.disabled = false;
+          if (btnNext) btnNext.disabled = false;
         };
 
-        btnPrev?.addEventListener("click", () => irPara(cardVisivel() - 1));
-        btnNext?.addEventListener("click", () => irPara(cardVisivel() + 1));
+        /* Passo do autoplay: vai pro próximo, e se estava no fim volta pro
+           começo — o loop é o que dá sensação de vida sem a barra travar. */
+        const proximo = () => {
+          const noFim = viewport.scrollLeft + viewport.clientWidth >= viewport.scrollWidth - 2;
+          if (noFim) irPara(0);
+          else irPara(cardVisivel() + 1);
+        };
+
+        const anterior = () => {
+          const noInicio = viewport.scrollLeft <= 1;
+          if (noInicio) irPara(cards.length - 1);
+          else irPara(cardVisivel() - 1);
+        };
+
+        /* ---------- Autoplay ----------
+           Vários motivos podem pausar (hover, foco, toque, aba escondida,
+           fora da tela). Cada um vira uma "trava"; só volta a rodar quando
+           todas soltam. Simples e sem estados intermediários bugados. */
+        const travas = new Set();
+        let timer = null;
+        let retomarTimer = null;
+
+        const podeRodar = () =>
+          !aparelho.reduzMovimento
+          && !travas.size
+          && viewport.scrollWidth > viewport.clientWidth + 1;
+
+        const parar = () => {
+          if (timer) { clearInterval(timer); timer = null; }
+        };
+
+        const tocar = () => {
+          parar();
+          if (!podeRodar()) return;
+          timer = setInterval(proximo, INTERVALO);
+        };
+
+        const travar = (chave) => { travas.add(chave); parar(); };
+        const soltar = (chave) => { travas.delete(chave); tocar(); };
+
+        /* Pausa temporária após interação — evita competir com a próxima
+           ação do visitante logo em seguida */
+        const pausarPor = (ms) => {
+          travar("temporaria");
+          clearTimeout(retomarTimer);
+          retomarTimer = setTimeout(() => soltar("temporaria"), ms);
+        };
+
+        /* hover / foco */
+        raiz.addEventListener("mouseenter", () => travar("hover"));
+        raiz.addEventListener("mouseleave", () => soltar("hover"));
+        raiz.addEventListener("focusin", () => travar("foco"));
+        raiz.addEventListener("focusout", () => soltar("foco"));
+
+        /* toque no mobile: pausa por alguns segundos após soltar o dedo */
+        viewport.addEventListener("touchstart", () => travar("toque"), { passive: true });
+        viewport.addEventListener("touchend", () => {
+          soltar("toque");
+          pausarPor(6000);
+        }, { passive: true });
+
+        /* rolagem manual com trackpad/roda pausa também */
+        viewport.addEventListener("wheel", () => pausarPor(6000), { passive: true });
+
+        btnPrev?.addEventListener("click", () => { pausarPor(6000); anterior(); });
+        btnNext?.addEventListener("click", () => { pausarPor(6000); proximo(); });
+
+        /* aba escondida (Ctrl+Tab, minimizou): não gasta timer nem bateria */
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) travar("aba");
+          else soltar("aba");
+        });
+
+        /* só roda quando o carrossel está de fato na tela */
+        if (aparelho.temIntersectionObserver) {
+          travar("fora");
+          const obs = new IntersectionObserver((entradas) => {
+            for (const e of entradas) {
+              if (e.isIntersecting) soltar("fora");
+              else travar("fora");
+            }
+          }, { threshold: 0.25 });
+          obs.observe(raiz);
+        }
 
         /* rAF para não recalcular a cada evento de scroll */
         let agendado = false;
@@ -514,6 +593,7 @@
         window.addEventListener("resize", atualizarControles, { passive: true });
 
         atualizarControles();
+        tocar();
       });
     },
   };

@@ -894,10 +894,6 @@ h1, h2, h3, h4 {
   outline: 2px solid var(--violet);
   outline-offset: 3px;
 }
-.carrossel-btn[disabled] {
-  opacity: 0;
-  pointer-events: none;
-}
 .carrossel-prev { left: -12px; }
 .carrossel-next { right: -12px; }
 
