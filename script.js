@@ -647,6 +647,36 @@
     },
   };
 
+  /* ---------- "Ver mais projetos" no mobile ----------
+     Colapsa cards 3-6 em telas ≤640 px. Uma vez expandido pelo visitante,
+     não recolhe mesmo que ele gire o aparelho — respeita a intenção. */
+  const moduloVerMaisProjetos = {
+    nome: "verMaisProjetos",
+    iniciar() {
+      const grid   = document.querySelector("[data-projetos-grid]");
+      const wrap   = document.querySelector("[data-ver-mais-wrap]");
+      const btn    = document.querySelector("[data-ver-mais-btn]");
+      if (!grid || !wrap || !btn) return;
+
+      const LIMITE = 640;
+      let expandido = false;
+
+      const sincronizar = () => {
+        const ehMobile = window.innerWidth <= LIMITE;
+        grid.toggleAttribute("data-collapsed", ehMobile && !expandido);
+        wrap.hidden = !ehMobile || expandido;
+      };
+
+      btn.addEventListener("click", () => {
+        expandido = true;
+        sincronizar();
+      });
+
+      window.addEventListener("resize", sincronizar, { passive: true });
+      sincronizar();
+    },
+  };
+
   /* ---------- Ano no rodapé ---------- */
   const moduloAno = {
     nome: "ano",
@@ -670,6 +700,7 @@
     moduloFormulario,
     moduloTopo,
     moduloCarrossel,
+    moduloVerMaisProjetos,
     moduloAno,
   ];
 

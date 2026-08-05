@@ -46,7 +46,7 @@
 <!-- O CSS do site vem primeiro e é o único que bloqueia a pintura. -->
 <!-- ?v= é cache-busting manual: bumpar a data a cada deploy que mexe no CSS/JS
      (o _headers guarda CSS e JS por 1h, senão a mudança só aparece depois) -->
-<link rel="stylesheet" href="styles.css?v=20260805">
+<link rel="stylesheet" href="styles.css?v=20260806">
 
 <!-- Fontes num <link> comum travavam a primeira pintura até o Google
      responder. Com media="print" o navegador baixa sem bloquear e o onload
@@ -255,7 +255,7 @@
       <p class="section-desc">Sites no ar e sistemas construídos do zero — e-commerce, gestão interna, gestão hoteleira, logística e presença digital.</p>
     </header>
 
-    <div class="projects">
+    <div class="projects" data-projetos-grid>
 
       <!-- Chalés Ponta da Represa — site publicado -->
       <article class="project glass reveal" style="--accent:#34d399; --accent-2:#22d3ee">
@@ -466,6 +466,13 @@
         </div>
       </article>
 
+    </div>
+
+    <div class="projetos-ver-mais" hidden data-ver-mais-wrap>
+      <button type="button" class="btn btn-ghost" data-ver-mais-btn>
+        Ver todos os projetos
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>
   </div>
 </section>
@@ -897,6 +904,6 @@
   <span>Falar no WhatsApp</span>
 </a>
 
-<script src="script.js?v=20260805" defer></script>
+<script src="script.js?v=20260806" defer></script>
 </body>
 </html>

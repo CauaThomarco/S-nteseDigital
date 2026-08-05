@@ -779,6 +779,15 @@ h1, h2, h3, h4 {
 }
 .project-link svg { transition: transform var(--t) var(--ease); }
 
+/* "Ver mais projetos" no mobile — JS controla via data-collapsed e [hidden] */
+.projects[data-collapsed] .project:nth-child(n+3) { display: none; }
+
+.projetos-ver-mais {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
 /* ---------- Cards (serviços) ---------- */
 .cards {
   display: grid;
