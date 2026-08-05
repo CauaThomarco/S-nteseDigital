@@ -435,11 +435,18 @@
   /* ---------- Carrossel de especialidades ----------
      A rolagem em si é do navegador (scroll-snap no CSS). O módulo liga botões,
      dots e um autoplay independente — pausado em hover, foco, toque, aba
-     escondida e quando o carrossel sai da tela, para não ficar rodando à toa. */
+     escondida e quando o carrossel sai da tela, para não ficar rodando à toa.
+
+     Loop infinito: os cards são duplicados uma vez no fim. Ao passar do
+     último original o autoplay entra nos clones (visualmente idênticos) e,
+     assim que o smooth scroll termina, o scrollLeft é resetado sem animação
+     para o card original correspondente. O visitante enxerga um movimento
+     contínuo, sem aquele "voltar do fim para o começo". */
   const moduloCarrossel = {
     nome: "carrossel",
     iniciar({ aparelho }) {
       const INTERVALO = 4500; // ms entre trocas automáticas
+      const DURACAO_SCROLL = 650; // ms — folga para o smooth scroll do navegador terminar
       const carrosseis = document.querySelectorAll("[data-carrossel]");
 
       carrosseis.forEach((raiz) => {
@@ -450,10 +457,22 @@
         const dotsWrap = raiz.querySelector("[data-carrossel-dots]");
         if (!viewport || !track) return;
 
-        const cards = Array.from(track.children);
-        if (!cards.length) return;
+        const originais = Array.from(track.children);
+        if (!originais.length) return;
 
-        const dots = cards.map((_, i) => {
+        /* clona uma cópia no fim para o loop infinito. aria-hidden evita
+           que leitores de tela repitam a lista inteira. */
+        const N = originais.length;
+        originais.forEach((c) => {
+          const clone = c.cloneNode(true);
+          clone.setAttribute("aria-hidden", "true");
+          clone.setAttribute("tabindex", "-1");
+          clone.querySelectorAll("a, button").forEach((el) => el.setAttribute("tabindex", "-1"));
+          track.appendChild(clone);
+        });
+        const cartas = Array.from(track.children); // 2N
+
+        const dots = originais.map((_, i) => {
           const d = document.createElement("button");
           d.type = "button";
           d.className = "carrossel-dot";
@@ -464,48 +483,78 @@
           return d;
         });
 
-        const irPara = (i) => {
-          const alvo = cards[Math.max(0, Math.min(i, cards.length - 1))];
-          if (!alvo) return;
+        let indice = 0; // 0..2N-1
+        let resetTimer = null;
+
+        const posicaoDe = (i) => cartas[i].offsetLeft - track.offsetLeft;
+
+        const irParaIndice = (i, suave = true) => {
+          if (!cartas[i]) return;
+          indice = i;
           viewport.scrollTo({
-            left: alvo.offsetLeft - track.offsetLeft,
-            behavior: aparelho.reduzMovimento ? "auto" : "smooth",
+            left: posicaoDe(i),
+            behavior: suave && !aparelho.reduzMovimento ? "smooth" : "auto",
           });
+        };
+
+        /* se estamos na região clonada, salta invisível para o equivalente
+           original antes de qualquer ação manual */
+        const normalizar = () => {
+          if (indice >= N) {
+            clearTimeout(resetTimer);
+            resetTimer = null;
+            irParaIndice(indice - N, false);
+          }
+        };
+
+        const irPara = (logico) => {
+          normalizar();
+          irParaIndice(Math.max(0, Math.min(logico, N - 1)));
         };
 
         const cardVisivel = () => {
           const x = viewport.scrollLeft;
           let melhor = 0;
           let menorDist = Infinity;
-          cards.forEach((c, i) => {
-            const dist = Math.abs(c.offsetLeft - track.offsetLeft - x);
+          cartas.forEach((_, i) => {
+            const dist = Math.abs(posicaoDe(i) - x);
             if (dist < menorDist) { menorDist = dist; melhor = i; }
           });
           return melhor;
         };
 
         const atualizarControles = () => {
-          const atual = cardVisivel();
+          const atual = cardVisivel() % N;
           dots.forEach((d, i) => {
             d.setAttribute("aria-current", i === atual ? "true" : "false");
           });
-          /* no autoplay não faz sentido desabilitar prev/next: eles dão a volta */
           if (btnPrev) btnPrev.disabled = false;
           if (btnNext) btnNext.disabled = false;
         };
 
-        /* Passo do autoplay: vai pro próximo, e se estava no fim volta pro
-           começo — o loop é o que dá sensação de vida sem a barra travar. */
         const proximo = () => {
-          const noFim = viewport.scrollLeft + viewport.clientWidth >= viewport.scrollWidth - 2;
-          if (noFim) irPara(0);
-          else irPara(cardVisivel() + 1);
+          const alvo = indice + 1;
+          irParaIndice(alvo);
+          /* entramos nos clones — agenda o reset invisível pro fim da animação */
+          if (alvo >= N) {
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(() => {
+              resetTimer = null;
+              irParaIndice(alvo - N, false);
+            }, DURACAO_SCROLL);
+          }
         };
 
         const anterior = () => {
-          const noInicio = viewport.scrollLeft <= 1;
-          if (noInicio) irPara(cards.length - 1);
-          else irPara(cardVisivel() - 1);
+          normalizar();
+          if (indice === 0) {
+            /* salta invisível pro clone do início e anda um passo pra trás
+               — evita o scroll longo de volta pro fim */
+            irParaIndice(N, false);
+            requestAnimationFrame(() => irParaIndice(N - 1, true));
+          } else {
+            irParaIndice(indice - 1);
+          }
         };
 
         /* ---------- Autoplay ----------
