@@ -835,6 +835,12 @@ h1, h2, h3, h4 {
    O JS só adiciona botões, dots e liga o clique ao scroll. */
 .cards-carousel { position: relative; }
 
+/* Calha lateral reservada para as setas: elas ficam ao lado dos cards,
+   nunca por cima do texto. Abaixo de 861px as setas somem e a calha também. */
+@media (min-width: 861px) {
+  .cards-carousel { padding-inline: 56px; }
+}
+
 .cards-viewport {
   overflow-x: auto;
   overflow-y: hidden;
@@ -894,8 +900,8 @@ h1, h2, h3, h4 {
   outline: 2px solid var(--violet);
   outline-offset: 3px;
 }
-.carrossel-prev { left: -12px; }
-.carrossel-next { right: -12px; }
+.carrossel-prev { left: 0; }
+.carrossel-next { right: 0; }
 
 @media (max-width: 860px) {
   .carrossel-btn { display: none; }
