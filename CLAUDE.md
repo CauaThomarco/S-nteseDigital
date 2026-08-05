@@ -79,30 +79,29 @@ Bugs de layout mobile que já foram corrigidos — não introduzir de novo:
 ## Deploy
 
 Cloudflare Pages conectado ao GitHub. Cada `git push` na `main` publica sozinho
-em `sintese-digital.pages.dev`. Sem CI, sem build step. `_headers` (segurança
-+ cache) e `404.html` são servidos automaticamente.
+em **`sintesedigitaldev.com.br`** (domínio próprio, desde ago/2026). Sem CI, sem
+build step. `_headers` (segurança + cache) e `404.html` são servidos
+automaticamente.
+
+**"Publiquei e nada mudou" quase sempre é cache**, não deploy: o `_headers` dá
+`max-age=3600` para `*.css` e `*.js`. O HTML linka `styles.css?v=AAAAMMDD` e
+`script.js?v=AAAAMMDD` — **bumpar essa data junto com qualquer mudança em CSS/JS**
+(em `index.html` e `404.html`), senão o navegador segura a versão velha por 1h.
 
 ## Pendências
 
 Marcadas com `<!-- TODO -->` no `index.html` ou listadas no README (seção
 "Antes de publicar"):
 
-1. **Domínio próprio** — `sintesedigital.com.br` e `sintese-digital.com.br` já
-   foram registrados por terceiros. Precisa escolher outro nome ou tentar
-   contato com os titulares.
-2. **URLs `sintese-digital.pages.dev`** — trocar em `index.html` (canonical,
-   og:url, og:image, twitter:image, JSON-LD `url`/`image`/`logo`), `robots.txt`
-   e `sitemap.xml` quando o domínio final existir. O README traz o `sed`
-   pronto.
-3. **Jardim Magnólia** (`index.html`) — link vai para GitHub; trocar por URL
+1. **Jardim Magnólia** (`index.html`) — link vai para GitHub; trocar por URL
    da loja quando estiver no ar.
-4. **SLEM** (`index.html`) — se surgir repositório público, trocar o CTA
+2. **SLEM** (`index.html`) — se surgir repositório público, trocar o CTA
    (hoje vai para WhatsApp).
-5. **C3T Agência de Viagens** — removido do portfólio por estar em produção;
+3. **C3T Agência de Viagens** — removido do portfólio por estar em produção;
    devolver quando estiver pronto.
-6. **Depoimentos** — a seção não existe porque não há frases reais. 2-3
+4. **Depoimentos** — a seção não existe porque não há frases reais. 2-3
    depoimentos (com nome + negócio) seriam o maior ganho de confiança.
-7. **`.idea/`** ainda rastreado por commits antigos apesar de estar no
+5. **`.idea/`** ainda rastreado por commits antigos apesar de estar no
    `.gitignore` — `git rm -r --cached .idea` limpa quando quiser.
 
 ## Trabalho em múltiplas máquinas

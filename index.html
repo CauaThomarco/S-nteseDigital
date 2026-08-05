@@ -22,7 +22,7 @@
 })();
 </script>
 <meta name="keywords" content="desenvolvimento de software, e-commerce, sistema hoteleiro, pousadas, Spring Boot, React, Java, Síntese Digital">
-<link rel="canonical" href="https://sintese-digital.pages.dev/">
+<link rel="canonical" href="https://sintesedigitaldev.com.br/">
 
 <!-- Open Graph / redes sociais -->
 <meta property="og:type" content="website">
@@ -30,19 +30,21 @@
 <meta property="og:site_name" content="Síntese Digital">
 <meta property="og:title" content="Síntese Digital — Soluções de Software Sob Medida">
 <meta property="og:description" content="E-commerce, sistemas de gestão interna, sistemas para hotelaria, sites institucionais e APIs sob medida. Do planejamento ao deploy.">
-<meta property="og:url" content="https://sintese-digital.pages.dev/">
-<meta property="og:image" content="https://sintese-digital.pages.dev/img/logo-horizontal-escura.png">
+<meta property="og:url" content="https://sintesedigitaldev.com.br/">
+<meta property="og:image" content="https://sintesedigitaldev.com.br/img/logo-horizontal-escura.png">
 <meta property="og:image:width" content="2200">
 <meta property="og:image:height" content="760">
 <meta property="og:image:alt" content="Síntese Digital — desenvolvimento web sob medida">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://sintese-digital.pages.dev/img/logo-horizontal-escura.png">
+<meta name="twitter:image" content="https://sintesedigitaldev.com.br/img/logo-horizontal-escura.png">
 <meta name="twitter:image:alt" content="Síntese Digital — desenvolvimento web sob medida">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b0e1e'/%3E%3Cpath d='M17 19c14 0 12 13 24 13' stroke='%238b5cf6' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Cpath d='M17 45c14 0 12-13 24-13' stroke='%236366f1' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='44' cy='32' r='5' fill='%2322d3ee'/%3E%3C/svg%3E">
 
 <!-- O CSS do site vem primeiro e é o único que bloqueia a pintura. -->
-<link rel="stylesheet" href="styles.css">
+<!-- ?v= é cache-busting manual: bumpar a data a cada deploy que mexe no CSS/JS
+     (o _headers guarda CSS e JS por 1h, senão a mudança só aparece depois) -->
+<link rel="stylesheet" href="styles.css?v=20260805">
 
 <!-- Fontes num <link> comum travavam a primeira pintura até o Google
      responder. Com media="print" o navegador baixa sem bloquear e o onload
@@ -64,9 +66,9 @@
   "@type": "ProfessionalService",
   "name": "Síntese Digital",
   "description": "Desenvolvimento de software sob medida: e-commerce, sistemas de gestão interna, sistemas para hotelaria e pousadas, sites institucionais e APIs.",
-  "url": "https://sintese-digital.pages.dev/",
-  "image": "https://sintese-digital.pages.dev/img/logo-horizontal-escura.png",
-  "logo": "https://sintese-digital.pages.dev/img/logo-horizontal-escura.png",
+  "url": "https://sintesedigitaldev.com.br/",
+  "image": "https://sintesedigitaldev.com.br/img/logo-horizontal-escura.png",
+  "logo": "https://sintesedigitaldev.com.br/img/logo-horizontal-escura.png",
   "areaServed": "BR",
   "founder": { "@type": "Person", "name": "Cauã Thomarco" },
   "knowsAbout": ["Java", "Spring Boot", "React", "PostgreSQL", "MySQL", "E-commerce", "Sistemas de gestão interna", "Sistemas de gestão hoteleira"],
@@ -246,23 +248,8 @@
       <!-- Chalés Ponta da Represa — site publicado -->
       <article class="project glass reveal" style="--accent:#34d399; --accent-2:#22d3ee">
         <div class="project-visual">
-          <svg viewBox="0 0 400 240" role="img" aria-label="Mockup do site dos Chalés Ponta da Represa" preserveAspectRatio="xMidYMid slice">
-            <defs><linearGradient id="p5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399" stop-opacity=".3"/><stop offset="1" stop-color="#22d3ee" stop-opacity=".28"/></linearGradient></defs>
-            <rect width="400" height="240" fill="url(#p5)"/>
-            <rect x="28" y="26" width="344" height="188" rx="10" fill="#0b0e1e" fill-opacity=".55" stroke="#fff" stroke-opacity=".18"/>
-            <path d="M28 168h344v46a10 10 0 0 1-10 10H38a10 10 0 0 1-10-10Z" fill="#22d3ee" fill-opacity=".16"/>
-            <g stroke="#34d399" stroke-opacity=".55" fill="none" stroke-width="2.5" stroke-linejoin="round">
-              <path d="M96 150 128 118l32 32"/><path d="M108 150v-22h40v22"/>
-              <path d="M212 150 244 118l32 32"/><path d="M224 150v-22h40v22"/>
-            </g>
-            <g fill="#34d399" fill-opacity=".7"><rect x="120" y="134" width="14" height="16" rx="2"/><rect x="236" y="134" width="14" height="16" rx="2"/></g>
-            <g stroke="#22d3ee" stroke-opacity=".45" fill="none" stroke-width="2" stroke-linecap="round"><path d="M40 182c14-8 28 8 42 0s28 8 42 0 28 8 42 0 28 8 42 0 28 8 42 0 28 8 42 0"/></g>
-            <rect x="48" y="48" width="110" height="10" rx="5" fill="#fff" fill-opacity=".55"/>
-            <rect x="48" y="68" width="150" height="7" rx="3.5" fill="#fff" fill-opacity=".28"/>
-            <rect x="48" y="88" width="86" height="20" rx="10" fill="#22d3ee" fill-opacity=".75"/>
-            <g fill="#fff" fill-opacity=".22"><rect x="252" y="46" width="100" height="14" rx="7"/><rect x="252" y="66" width="100" height="14" rx="7"/><rect x="252" y="86" width="100" height="14" rx="7"/></g>
-            <g fill="#fff" fill-opacity=".35"><rect x="48" y="196" width="60" height="8" rx="4"/><rect x="120" y="196" width="60" height="8" rx="4"/><rect x="192" y="196" width="60" height="8" rx="4"/></g>
-          </svg>
+          <img src="img/chales-ponta-da-represa.jpg" width="1200" height="720" loading="lazy" decoding="async"
+               alt="Página inicial do site dos Chalés Ponta da Represa, com os chalés de madeira à beira do Lago de Furnas">
           <span class="badge badge-live"><span class="live-dot" aria-hidden="true"></span> No ar</span>
           <span class="badge">Hospedagem</span>
         </div>
@@ -898,6 +885,6 @@
   <span>Falar no WhatsApp</span>
 </a>
 
-<script src="script.js" defer></script>
+<script src="script.js?v=20260805" defer></script>
 </body>
 </html>
