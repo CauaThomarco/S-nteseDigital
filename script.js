@@ -686,6 +686,26 @@
     },
   };
 
+  /* ---------- Conversão Google Ads — clique no WhatsApp ----------
+     Dispara o evento de conversão toda vez que o visitante clicar em
+     qualquer link wa.me do site. Não dispara no carregamento da página,
+     que seria um falso positivo. */
+  const moduloConversaoGoogle = {
+    nome: "conversaoGoogle",
+    iniciar() {
+      document.addEventListener("click", (e) => {
+        const link = e.target.closest("a[href]");
+        if (!link || !link.href.includes("wa.me")) return;
+        if (typeof gtag !== "function") return;
+        gtag("event", "conversion", {
+          send_to: "AW-18373610992/eOlWCNu4ydwcEPCbnLlE",
+          value: 1.0,
+          currency: "BRL",
+        });
+      });
+    },
+  };
+
   /* =======================================================
      NÚCLEO
      ======================================================= */
@@ -701,6 +721,7 @@
     moduloTopo,
     moduloCarrossel,
     moduloVerMaisProjetos,
+    moduloConversaoGoogle,
     moduloAno,
   ];
 
