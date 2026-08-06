@@ -696,12 +696,9 @@
       document.addEventListener("click", (e) => {
         const link = e.target.closest("a[href]");
         if (!link || !link.href.includes("wa.me")) return;
-        if (typeof gtag !== "function") return;
-        gtag("event", "conversion", {
-          send_to: "AW-18373610992/eOlWCNu4ydwcEPCbnLlE",
-          value: 1.0,
-          currency: "BRL",
-        });
+        if (typeof gtag_report_conversion !== "function") return;
+        /* sem URL: links têm target="_blank", a página atual não navega */
+        gtag_report_conversion();
       });
     },
   };
